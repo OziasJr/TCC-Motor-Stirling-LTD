@@ -4,21 +4,16 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="./node_modules/bootstrap/dist/css/bootstrap.min.css"
-    />
-    <script src="./node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-      crossorigin="anonymous"
-    ></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- <script src="./node_modules/highcharts/css/highcharts.css"></script> -->
-    <script src="./node_modules/highcharts/highcharts.src.js"></script>
-    <script src="./node_modules/highcharts/modules/accessibility.js"></script>
-    <script src="./node_modules/highcharts/modules/exporting.src.js"></script>
+   <!-- Bootstrap CSS -->
+<link rel="stylesheet" href="./libs/bootstrap/bootstrap.min.css" />
+
+<!-- Bootstrap JS -->
+<script src="./libs/bootstrap/bootstrap.bundle.min.js"></script>
+
+<!-- Highcharts -->
+<script src="./libs/highcharts/highcharts.src.js"></script>
+<script src="./libs/highcharts/modules/accessibility.js"></script>
+<script src="./libs/highcharts/modules/exporting.src.js"></script>
     <title>Motor Stirling: Gama</title>
     <style>
       * {
@@ -1398,7 +1393,7 @@
       // Variáveis Inciais Referentes ao Motor Stirling (Omega, Angulos Inciais, Escala e ect)
       //********************************************************************************
       let isPlaying = false; // controla play/pause
-      let animation; // guarda o requestAnimationFrame atual
+      let animation = null; // guarda o requestAnimationFrame atual
       // let omega = 0.05; // Lento --> 0.01 | Normal --> 0.05 | Rápido --> 0.09
       // Fase inicial SOMENTE do marcador "Estado Atual" do gráfico P-V: meio da curva vermelha (π a 3π/2).
       // O motor e os ângulos (angle, angle_one/two/five/six_engine) continuam iniciando em π.
