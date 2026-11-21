@@ -1,0 +1,2425 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="./node_modules/bootstrap/dist/css/bootstrap.min.css"
+    />
+    <script src="./node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- <script src="./node_modules/highcharts/css/highcharts.css"></script> -->
+    <script src="./node_modules/highcharts/highcharts.src.js"></script>
+    <script src="./node_modules/highcharts/modules/accessibility.js"></script>
+    <script src="./node_modules/highcharts/modules/exporting.src.js"></script>
+    <title>Motor Stirling: Gama</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: sans-serif;
+      }
+
+      .container-box {
+        width: 100vw;
+        height: 100vh;
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+      }
+
+      /* ------------------ Título ----------------- */
+      .title-menu {
+        min-width: 95vw;
+        display: flex;
+        justify-content: center;
+      }
+
+      /* ------------------ Botão de Menu ----------------- */
+      .button-box-menu {
+        width: 4vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .button-box-menu a {
+        border: 1px solid rgb(69, 68, 67, 0.5);
+      }
+
+      .button-menu {
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        background-color: rgb(0, 132, 255);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: auto;
+        box-shadow:
+          inset 2px 2px 5px 2px rgba(255, 255, 255, 0.5),
+          inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      .button-menu:hover {
+        background-color: rgb(0, 132, 255, 0.9);
+      }
+
+      .button-menu:active {
+        background-color: rgb(0, 132, 255);
+        box-shadow:
+          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4),
+          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4);
+      }
+
+      .menu {
+        width: 24px;
+        height: 24px;
+      }
+
+      .menu path {
+        color: #fff;
+      }
+
+      .button-box {
+        position: absolute;
+        bottom: calc(100vh - 91%);
+        width: 100vw;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .button-box button {
+        margin: 0;
+        border: 1px solid rgb(69, 68, 67, 0.5);
+      }
+
+      .button-box-principal {
+        width: calc(100vw - 24px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .button-box-principal button + button {
+        margin-left: 15px;
+      }
+
+      .button-box-reload {
+        width: 4vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      /* ------------------ Botão de Rewind ----------------- */
+      .button-rewind {
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        background-color: rgb(69, 68, 67);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: auto;
+      }
+
+      .button-rewind:hover {
+        background-color: rgb(69, 68, 67, 0.9);
+      }
+
+      .button-rewind:active {
+        background-color: rgb(69, 68, 67);
+        box-shadow:
+          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4),
+          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4);
+      }
+
+      .rewind {
+        width: 24px;
+        height: 24px;
+      }
+
+      /* -------------------------------------------------- */
+
+      /* -------------- Botão de Play e Pause ------------- */
+      .button-play {
+        border-radius: 50%;
+        width: 54px;
+        height: 54px;
+        background-color: rgb(69, 68, 67);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: auto;
+        box-shadow:
+          inset 2px 2px 5px 2px rgba(226, 222, 218, 0.5),
+          inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      .button-play:hover {
+        background-color: rgb(69, 68, 67, 0.9);
+      }
+
+      .button-play:active {
+        background-color: rgb(69, 68, 67);
+        box-shadow:
+          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4),
+          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4);
+      }
+
+      .play {
+        width: 44px;
+        height: 44px;
+      }
+
+      .pause {
+        width: 44px;
+        height: 44px;
+      }
+
+      /* -------------------------------------------------- */
+
+      /* ------------------ Botão de Step ----------------- */
+      .button-step {
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        background-color: rgb(69, 68, 67);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: auto;
+        margin-right: 15px !important;
+      }
+
+      .button-step:hover {
+        background-color: rgb(69, 68, 67, 0.9);
+      }
+
+      .button-step:active {
+        background-color: rgb(69, 68, 67);
+        box-shadow:
+          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4),
+          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4);
+      }
+
+      .step {
+        width: 24px;
+        height: 24px;
+      }
+
+      /* -------------------------------------------------- */
+
+      /* ------------------ Opções de Velocidade ----------------- */
+      .form-box {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .form-box-fast,
+      .form-box-regular,
+      .form-box-low {
+        display: flex;
+        align-items: center;
+      }
+
+      .form-box-fast input,
+      .form-box-fast label,
+      .form-box-regular input,
+      .form-box-regular label,
+      .form-box-low input,
+      .form-box-low label {
+        padding: 0px 5px 0px 5px;
+        color: rgb(69, 68, 67);
+      }
+
+      .form-box-fast input,
+      .form-box-regular input,
+      .form-box-low input {
+        width: 24px;
+        height: 24px;
+        background-color: rgb(69, 68, 67);
+      }
+
+      .form-box-fast input:hover,
+      .form-box-fast label:hover,
+      .form-box-regular input:hover,
+      .form-box-regular label:hover,
+      .form-box-low input:hover,
+      .form-box-low label:hover {
+        cursor: pointer;
+      }
+
+      /* -------------------------------------------------- */
+
+      /* ------------------ Botão de Reload ----------------- */
+      .button-reload {
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        background-color: rgb(255, 128, 0);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: auto;
+        box-shadow:
+          inset 2px 2px 5px 2px rgba(255, 255, 255, 0.5),
+          inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      .button-reload:hover {
+        background-color: rgb(255, 128, 0, 0.9);
+      }
+
+      .button-reload:active {
+        background-color: rgb(255, 128, 0);
+        box-shadow:
+          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4),
+          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4);
+      }
+
+      .reload {
+        width: 24px;
+        height: 24px;
+      }
+
+      .reload path {
+        color: #fff;
+      }
+
+      .navbar-bottom-box {
+        position: absolute;
+        background-color: black;
+        bottom: 0;
+        width: 100vw;
+        height: calc(100vh - 92%);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 15px 5px 15px;
+      }
+
+      .navbar-bottom-box p {
+        margin: 0;
+        color: #fff;
+        text-decoration: none;
+        font-size: 20px;
+      }
+
+      .navbar-bottom-box a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 20px;
+      }
+
+      .navbar-bottom-options ul {
+        display: flex;
+        justify-content: space-between;
+        list-style: none;
+        margin: 0;
+      }
+
+      .navbar-bottom-options li + li {
+        margin-left: 15px;
+      }
+
+      /* Inputs de Temperatura */
+      .cold-temperature {
+        bottom: 380px;
+      }
+
+      .hot-temperature {
+        bottom: 80px;
+      }
+
+      .cold-temperature,
+      .hot-temperature {
+        position: absolute;
+        left: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: end;
+      }
+
+      .cold-temperature button,
+      .hot-temperature button {
+        width: 14px;
+        height: 14px;
+        background-color: transparent;
+        border: transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .cold-temperature-buttons button + button,
+      .hot-temperature-buttons button + button {
+        margin-top: 0px;
+      }
+
+      .text-input-cold-temperature,
+      .text-input-hot-temperature {
+        width: 120px;
+      }
+
+      .text-input-cold-temperature p,
+      .text-input-hot-temperature p {
+        margin: 0;
+        color: #000;
+        font-size: 14px;
+        font-weight: bolder;
+      }
+
+      .cold-source,
+      .hot-source {
+        border: 1px solid #000;
+        margin: 0;
+        padding: 2px;
+      }
+
+      .cold-source {
+        background-color: rgb(30, 144, 255);
+      }
+
+      .hot-source {
+        background-color: rgb(255, 111, 0);
+      }
+
+      .cold-up,
+      .cold-down,
+      .hot-up,
+      .hot-down {
+        width: 100%;
+        height: auto;
+      }
+
+      .input-none:focus {
+        box-shadow: 0 0 0 0 !important;
+      }
+
+      .work-box {
+        position: absolute;
+        display: flex;
+        right: calc(100vh - (100vh / 2));
+        bottom: 80px;
+        /* width: 350px; */
+        height: auto;
+        color: #000;
+        font-weight: bolder;
+      }
+
+      .work-box-model {
+        bottom: 122px;
+      }
+
+      .work-box p {
+        margin: 0;
+        padding: 5px;
+      }
+
+      /* .work-box p + p {
+            margin-left: 10px;
+        } */
+
+      .work {
+        border: 1px solid #000;
+        background-color: rgba(202, 195, 202, 1);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container-box">
+      <div class="header">
+        <div class="title-menu">
+          <h1 style="margin-bottom: 0; color: black">
+            Motor Stirling LTD (Tipo Gama)
+          </h1>
+        </div>
+      </div>
+      <canvas id="canvas"></canvas>
+      <div
+        class="circle"
+        id="circleStirling"
+        style="position: absolute; top: 100px; right: 50px"
+      ></div>
+      <div class="button-box">
+        <div class="button-box-principal">
+          <button
+            type="button"
+            class="button-rewind"
+            id="buttonRewind"
+            style="
+              box-shadow:
+                rgba(226, 222, 218, 0.5) 2px 2px 5px 2px inset,
+                rgba(0, 0, 0, 0.5) -2px -2px 5px 2px inset;
+            "
+            onclick="rewindSimulation()"
+            data-bs-toggle="tooltip"
+            data-bs-trigger="hover"
+            data-bs-placement="top"
+            data-bs-custom-class="custom-tooltip"
+            data-bs-title="Retroceder um passo"
+          >
+            <svg class="rewind" viewBox="0 0 24 24">
+              <path
+                fill="currentColor"
+                d="M6,18V6H8V18H6M9.5,12L18,6V18L9.5,12Z"
+              />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="button-play"
+            id="buttonPlay"
+            onclick="playSimulation()"
+            data-bs-toggle="tooltip"
+            data-bs-trigger="hover"
+            data-bs-placement="top"
+            data-bs-custom-class="custom-tooltip"
+            data-bs-title="Play"
+          >
+            <svg class="play" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
+            </svg>
+            <svg class="pause" viewBox="0 0 24 24" style="display: none">
+              <path fill="currentColor" d="M6 5h4v14H6zm8 0h4v14h-4z" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="button-step"
+            id="buttonStep"
+            style="
+              box-shadow:
+                rgba(226, 222, 218, 0.5) 2px 2px 5px 2px inset,
+                rgba(0, 0, 0, 0.5) -2px -2px 5px 2px inset;
+            "
+            onclick="stepSimulation()"
+            data-bs-toggle="tooltip"
+            data-bs-trigger="hover"
+            data-bs-placement="top"
+            data-bs-custom-class="custom-tooltip"
+            data-bs-title="Avançar um passo"
+          >
+            <svg class="step" viewBox="0 0 20 24">
+              <path
+                fill="currentColor"
+                d="M4,18L12.5,12L4,6V18M13,6H15V18H13V6Z"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="button-box-reload">
+          <button
+            type="button"
+            class="button-reload"
+            id="buttonReload"
+            onclick="reloadSimulation()"
+            data-bs-toggle="tooltip"
+            data-bs-trigger="hover"
+            data-bs-placement="top"
+            data-bs-custom-class="custom-tooltip"
+            data-bs-title="Resetar"
+          >
+            <svg class="reload" viewBox="0 0 23 24">
+              <path
+                fill="currentColor"
+                d="M2 12C2 16.97 6.03 21 11 21C13.39 21 15.68 20.06 17.4 18.4L15.9 16.9C14.63 18.25 12.86 19 11 19C4.76 19 1.64 11.46 6.05 7.05C10.46 2.64 18 5.77 18 12H15L19 16H19.1L23 12H20C20 7.03 15.97 3 11 3C6.03 3 2 7.03 2 12Z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="cold-temperature">
+        <div class="text-input-cold-temperature">
+          <p>Fonte Fria (K)</p>
+          <p class="cold-source" id="coldSource">400</p>
+        </div>
+        <div class="cold-temperature-buttons">
+          <button
+            type="button"
+            class="cold-temperature-cold"
+            id="coldTemperatureUpButton"
+            onclick="coldTemperatureUp()"
+          >
+            <svg class="cold-up" viewBox="0 0 24 24">
+              <title>chevron-up-box</title>
+              <path
+                fill="currentColor"
+                d="M19,3H5A2,2 0 0,0 3,5V19C3,20.11 3.9,21 5,21H19C20.11,21 21,20.11 21,19V5A2,2 0 0,0 19,3M16.59,15.71L12,11.12L7.41,15.71L6,14.29L12,8.29L18,14.29L16.59,15.71Z"
+              />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="cold-temperature-down"
+            id="coldTemperatureDownButton"
+            onclick="coldTemperatureDown()"
+          >
+            <svg class="cold-down" viewBox="0 0 24 24">
+              <title>chevron-down-box</title>
+              <path
+                fill="currentColor"
+                d="M19,3H5A2,2 0 0,0 3,5V19C3,20.11 3.9,21 5,21H19C20.11,21 21,20.11 21,19V5A2,2 0 0,0 19,3M12,15.71L6,9.71L7.41,8.29L12,12.88L16.59,8.29L18,9.71L12,15.71Z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="hot-temperature">
+        <div class="text-input-hot-temperature">
+          <p>Fonte Quente (K)</p>
+          <p class="hot-source" id="hotSource">660</p>
+        </div>
+        <div class="hot-temperature-buttons">
+          <button
+            type="submit"
+            class="hot-temperature-up"
+            id="hotTemperatureUpButton"
+            onclick="hotTemperatureUp()"
+          >
+            <svg class="hot-up" viewBox="0 0 24 24">
+              <title>chevron-up-box</title>
+              <path
+                fill="currentColor"
+                d="M19,3H5A2,2 0 0,0 3,5V19C3,20.11 3.9,21 5,21H19C20.11,21 21,20.11 21,19V5A2,2 0 0,0 19,3M16.59,15.71L12,11.12L7.41,15.71L6,14.29L12,8.29L18,14.29L16.59,15.71Z"
+              />
+            </svg>
+          </button>
+          <button
+            type="submit"
+            class="hot-temperature-down"
+            id="hotTemperatureDownButton"
+            onclick="hotTemperatureDown()"
+          >
+            <svg class="hot-down" viewBox="0 0 24 24">
+              <title>chevron-down-box</title>
+              <path
+                fill="currentColor"
+                d="M19,3H5A2,2 0 0,0 3,5V19C3,20.11 3.9,21 5,21H19C20.11,21 21,20.11 21,19V5A2,2 0 0,0 19,3M12,15.71L6,9.71L7.41,8.29L12,12.88L16.59,8.29L18,9.71L12,15.71Z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="work-box work-box-model">
+        <p>W<sub>motor, modelo</sub> =</p>
+        <p class="work" id="workModel"></p>
+        <p>J</p>
+      </div>
+      <div class="work-box">
+        <p>W<sub>ciclo, ideal</sub> =</p>
+        <p class="work" id="work"></p>
+        <p>J</p>
+      </div>
+      <!-- <img class="img-ice" id="img-ice" src="./img/gelo3.png" alt="" onclick="imgIce()">
+        <img class="img-fire" id="img-fire" src="./img/fogo4.png" alt="" onclick="imgFire()"> -->
+      <div class="navbar-bottom-box">
+        <p>Motor Stirling LTD (Tipo Gama)</p>
+        <div class="navbar-bottom-options">
+          <ul>
+            <li><a href="./01_codigo_TCC_modelo_01.html">Sobre</a></li>
+            <li><a href="./01_codigo_TCC_modelo_02.html">Funcionamento</a></li>
+            <!-- <li><a href="">Gráfico</a></li> -->
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      //*********************************
+      // Carrega os Tooltipes (Mensagens que Aparecem em Cima do Botão  Retroceder, Play, Avançar e Resetar)
+      //*********************************
+      const tooltipTriggerList = document.querySelectorAll(
+        '[data-bs-toggle="tooltip"]',
+      );
+      [...tooltipTriggerList].map((el) => new bootstrap.Tooltip(el));
+
+      //*********************************
+      // Canvas Engine (Padrão para usar o Canvas)
+      //*********************************
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+
+      //*********************************
+      // Obtem e Armazena o Tamanho da Tela do Dispositivo
+      //*********************************
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      //*********************************
+      // Determina a Posição do Motor na Tela
+      //*********************************
+      let xCenter = canvas.width / 4;
+      let yCenter = canvas.height / 2.2;
+
+      //*********************************
+      // Variaveis Inciais e Constantes para o Cálculo e Desenho do Ciclo Stirling
+      //*********************************
+      // omega = incremento angular POR QUADRO (rad/quadro), não rad/s. É uma regra
+      // visual/didática (não uma lei física): quanto maior ΔT = Th - Tc, mais rápida a animação.
+      //   ΔT <= 100 K -> OMEGA_SLOW (0.01) | ΔT = 900 K -> OMEGA_NORMAL (0.05) | ΔT >= 1800 K -> OMEGA_FAST (0.09)
+      //   Entre as âncoras a velocidade varia continuamente (interpolação linear), então cada
+      //   passo de 20 K em Th ou Tc altera a velocidade de forma perceptível.
+      const OMEGA_SLOW = 0.01;
+      const OMEGA_NORMAL = 0.05;
+      const OMEGA_FAST = 0.09;
+      const DELTA_T_SLOW = 100; // K
+      const DELTA_T_NORMAL = 900; // K (condição inicial de referência)
+      const DELTA_T_FAST = 1800; // K
+      function getOmegaForDeltaT(deltaT) {
+        if (!Number.isFinite(deltaT)) return OMEGA_NORMAL; // entrada inválida: valor padrão
+        if (deltaT <= DELTA_T_SLOW) return OMEGA_SLOW;
+        if (deltaT >= DELTA_T_FAST) return OMEGA_FAST;
+        if (deltaT <= DELTA_T_NORMAL) {
+          const u = (deltaT - DELTA_T_SLOW) / (DELTA_T_NORMAL - DELTA_T_SLOW);
+          return OMEGA_SLOW + (OMEGA_NORMAL - OMEGA_SLOW) * u;
+        }
+        const u = (deltaT - DELTA_T_NORMAL) / (DELTA_T_FAST - DELTA_T_NORMAL);
+        return OMEGA_NORMAL + (OMEGA_FAST - OMEGA_NORMAL) * u;
+      }
+      let omega = OMEGA_NORMAL;
+
+      // Constantes físicas e condição de carga do modelo de referência (Arquivo 1), em unidades SI.
+      // Observação: n·R = P0·V0/T0 não depende do valor de R; só o n exibido depende.
+      const R = 8.314462; // J/(mol·K)
+      const P0 = 101325; // Pa — pressão atmosférica da condição de carga
+      const T0 = 298.15; // K — temperatura ambiente da condição de carga
+      let n = 0; // mol — calculado por calculateInitialCharge() a partir da condição de carga
+
+      let Tc = 400;
+      let Th = 660;
+
+      //*********************************
+      // MODELO TERMODINÂMICO (incorporado do modelo de referência — Arquivo 1)
+      //*********************************
+      // Substitui o modelo anterior (geometria lida do desenho do Canvas + calibração didática
+      // de 250 L). Unidades: volumes em cm³, pressões calculadas em Pa e plotadas em kPa,
+      // temperaturas em K, quantidade de matéria em mol, ângulos em radianos, trabalho em J.
+      //
+      // Referência angular única: theta = variável `angle` da animação. O mecanismo desenhado
+      // concorda com as equações de volume abaixo SEM deslocamento de fase:
+      //   deslocador (angle_one_engine = theta + π/2): espaço quente ∝ (1 − cos θ); frio ∝ (1 + cos θ)
+      //   potência   (angle_two_engine = theta − π/2): volume ∝ (1 − cos(θ − dx)), com dx = π/2
+      // ================================================================================
+
+      // Geometria (mantida conforme os dados originais do modelo de referência)
+      const De = 19.8; // cm — diâmetro do espaço de expansão
+      const Se = 2; // cm — curso do deslocador
+      const Vde = 1.1945; // cm³ — volume morto de expansão
+      const Vdc = 0.01789; // cm³ — volume morto de compressão
+      const dx = (90 * Math.PI) / 180; // rad — defasagem entre deslocador e pistão de potência
+      const x0 = 0; // rad — posição angular da condição de carga e início da curva de Schmidt
+      const SCHMIDT_POINTS = 720; // intervalos angulares da curva fechada de Schmidt
+      const IDEAL_SAMPLES = 120; // intervalos das isotérmicas do ciclo ideal
+
+      // Parâmetros variáveis (valores iniciais do modelo de referência)
+      let Dc = 7; // cm — diâmetro do cilindro de compressão
+      let Sc = 4; // cm — curso do pistão de potência
+
+      let Vse, Vsc, V0; // cm³: volumes varridos (expansão, compressão) e volume na condição de carga
+      let V1, V2, V3, V4; // cm³: volumes dos 4 estados do ciclo ideal
+      let P1, P2, P3, P4; // Pa: pressões dos 4 estados do ciclo ideal
+      let dataPh, dataPc, dataLine14, dataLine23, dataSchmidt; // séries [V (cm³), P (kPa)]
+      let dataPh_gray, dataPc_gray; // isotermas de referência (Th e Tc)
+      let w12, w34, w; // J: trabalhos do ciclo ideal
+      let cycleWorkModel = 0; // J: ∮ P dV da curva de Schmidt (trabalho do MODELO do motor)
+
+      // Margem visual dos eixos (fração de V2 − V1). Não entra em nenhum cálculo: só evita que as
+      // isocóricas e o marcador fiquem cortados sobre a borda da área do gráfico.
+      const AXIS_MARGIN_FRAC = 0.05;
+
+      // 3. Geometria e volumes instantâneos
+      function calculateSweptVolumes() {
+        Vse = ((Math.PI * De ** 2) / 4) * Se;
+        Vsc = ((Math.PI * Dc ** 2) / 4) * Sc;
+      }
+
+      // Ve: espaço de expansão (quente, a Th). Vc: espaço de compressão (frio, a Tc).
+      function calculateVolumes(theta) {
+        const Ve = (Vse / 2) * (1 - Math.cos(theta)) + Vde;
+        const Vc =
+          (Vse / 2) * (1 + Math.cos(theta)) +
+          (Vsc / 2) * (1 - Math.cos(theta - dx)) +
+          Vdc;
+
+        return { Ve, Vc, Vtotal: Ve + Vc };
+      }
+
+      // 4. Condição inicial e quantidade de gás: n = P0·V0/(R·T0), com V0 em m³
+      function calculateInitialCharge() {
+        V0 = calculateVolumes(x0).Vtotal; // cm³
+        n = (P0 * V0 * 1e-6) / (R * T0);
+      }
+
+      // 5. Pressão dos modelos ideal e Schmidt (resultados em Pa)
+      function calculatePressureIdeal(temperature, volumeCm3) {
+        const volumeM3 = volumeCm3 * 1e-6;
+        return (n * R * temperature) / volumeM3;
+      }
+
+      function calculatePressureSchmidt(theta) {
+        const volumes = calculateVolumes(theta);
+        const VeM3 = volumes.Ve * 1e-6;
+        const VcM3 = volumes.Vc * 1e-6;
+
+        const pressure = (n * R) / (VeM3 / Th + VcM3 / Tc);
+
+        return { pressure, volume: volumes.Vtotal };
+      }
+
+      // 6. Estados e curvas do ciclo ideal
+      function generateIsothermalCurve(temperature, startVolume, endVolume, points = IDEAL_SAMPLES) {
+        const data = [];
+        for (let i = 0; i <= points; i++) {
+          const volume = startVolume + (endVolume - startVolume) * (i / points);
+          const pressure = calculatePressureIdeal(temperature, volume);
+          data.push([volume, pressure / 1000]); // cm³, kPa
+        }
+        return data;
+      }
+
+      // Numeração dos estados (igual à Figura 4 do TCC, Çengel e Boles): 1 -> 2 expansão isotérmica (Th),
+      // 2 -> 3 resfriamento isocórico, 3 -> 4 compressão isotérmica (Tc), 4 -> 1 aquecimento isocórico.
+      function generateIdealCycle() {
+        V1 = Vse + Vde + Vdc; // volume mínimo
+        V2 = V1 + Vsc; // volume máximo
+        V3 = V2;
+        V4 = V1;
+
+        P1 = calculatePressureIdeal(Th, V1);
+        P2 = calculatePressureIdeal(Th, V2);
+        P3 = calculatePressureIdeal(Tc, V3);
+        P4 = calculatePressureIdeal(Tc, V4);
+
+        dataPh = generateIsothermalCurve(Th, V1, V2);
+        dataLine23 = [
+          [V2, P2 / 1000],
+          [V3, P3 / 1000],
+        ];
+        dataPc = generateIsothermalCurve(Tc, V3, V4);
+        dataLine14 = [
+          [V4, P4 / 1000],
+          [V1, P1 / 1000],
+        ];
+      }
+
+      // Faixa de volume do eixo horizontal (V1 e V2 são também V_min e V_max da curva de Schmidt)
+      function getAxisRange() {
+        const margin = (V2 - V1) * AXIS_MARGIN_FRAC;
+        return { min: V1 - margin, max: V2 + margin };
+      }
+
+      // Isotermas de referência (cinza) de Th e Tc sobre a faixa visível do eixo de volume
+      function generateReferenceIsotherms() {
+        const range = getAxisRange();
+        dataPh_gray = generateIsothermalCurve(Th, range.min, range.max);
+        dataPc_gray = generateIsothermalCurve(Tc, range.min, range.max);
+      }
+
+      // 7. Curva fechada do ciclo de Schmidt (uma volta: theta de x0 a x0 + 2π; o último ponto repete o primeiro)
+      function generateSchmidtCurve(points = SCHMIDT_POINTS) {
+        const data = [];
+        for (let i = 0; i <= points; i++) {
+          const theta = x0 + (2 * Math.PI * i) / points;
+          const result = calculatePressureSchmidt(theta);
+          data.push([result.volume, result.pressure / 1000]); // cm³, kPa
+        }
+        return data;
+      }
+
+      // 8. Trabalhos (J)
+      // Ideal: fórmula fechada das duas isotérmicas (as isocóricas não realizam trabalho),
+      //   W = n·R·Th·ln(V2/V1) + n·R·Tc·ln(V4/V3).
+      // A razão de volumes é adimensional: n [mol]·R [J/(mol·K)]·T [K] já resulta em J.
+      function calculateIdealWork() {
+        w12 = n * R * Th * Math.log(V2 / V1);
+        w34 = n * R * Tc * Math.log(V4 / V3);
+        return w12 + w34;
+      }
+
+      // Motor (modelo de Schmidt): ∮ P dV pela regra do trapézio sobre a curva fechada.
+      // V em cm³ e P em kPa: 1 kPa·cm³ = 10³ Pa · 10⁻⁶ m³ = 10⁻³ J. Positivo = percurso horário no P-V.
+      function calculateSchmidtWork(data) {
+        let W = 0;
+        for (let i = 0; i < data.length - 1; i++) {
+          W += ((data[i][1] + data[i + 1][1]) / 2) * (data[i + 1][0] - data[i][0]);
+        }
+        return W * 1e-3;
+      }
+
+      // 9. Recálculo completo (n, ciclo ideal, curva de Schmidt, isotermas e trabalhos).
+      // Depende de Th e Tc, por isso é refeito sempre que uma temperatura muda.
+      function recalculateModel() {
+        calculateSweptVolumes();
+        calculateInitialCharge();
+        generateIdealCycle();
+        dataSchmidt = generateSchmidtCurve();
+        generateReferenceIsotherms();
+        w = calculateIdealWork();
+        cycleWorkModel = calculateSchmidtWork(dataSchmidt);
+      }
+
+      // Estado do gás de trabalho em theta, usado pelo marcador do gráfico e pela coloração térmica.
+      // V em cm³, P em kPa (absoluta), T em K (temperatura efetiva T = P·V/(n·R), com Tc <= T <= Th).
+      function calculateThermodynamicState(theta) {
+        const s = calculatePressureSchmidt(theta);
+        return {
+          theta,
+          V: s.volume,
+          P: s.pressure / 1000,
+          T: (s.pressure * s.volume * 1e-6) / (n * R),
+        };
+      }
+
+      // Trabalhos exibidos na interface (J). O gás do modelo é pequeno (~10⁻⁴ mol, ~9 cm³),
+      // então os trabalhos são da ordem de 10⁻² J; por isso 4 casas decimais.
+      const WORK_DECIMALS = 4;
+      function updateWorkDisplay() {
+        document.getElementById("work").textContent = w.toFixed(WORK_DECIMALS);
+        document.getElementById("workModel").textContent =
+          cycleWorkModel.toFixed(WORK_DECIMALS);
+      }
+
+      // Resumo dos cálculos no console do navegador, agrupado por categoria.
+      function logModelSummary() {
+        const kPa = (Pa) => Number((Pa / 1000).toFixed(3));
+        const pSchmidt = dataSchmidt.map((p) => p[1]); // kPa
+        console.group("Motor Stirling LTD — resumo do modelo");
+
+        console.group("Parâmetros geométricos");
+        console.log("De (diâmetro de expansão):", De, "cm");
+        console.log("Se (curso do deslocador):", Se, "cm");
+        console.log("Dc (diâmetro de compressão):", Dc, "cm");
+        console.log("Sc (curso do pistão de potência):", Sc, "cm");
+        console.log("Vde (volume morto de expansão):", Vde, "cm³");
+        console.log("Vdc (volume morto de compressão):", Vdc, "cm³");
+        console.log("dx (defasagem):", dx, "rad (", (dx * 180) / Math.PI, "°)");
+        console.log("x0 (posição angular da carga):", x0, "rad");
+        console.groupEnd();
+
+        console.group("Volumes calculados");
+        console.log("Vse (volume varrido de expansão):", Vse, "cm³");
+        console.log("Vsc (volume varrido de compressão):", Vsc, "cm³");
+        console.log("V1 = V4 (volume mínimo):", V1, "cm³");
+        console.log("V2 = V3 (volume máximo):", V2, "cm³");
+        console.log("ΔV = V2 − V1:", V2 - V1, "cm³");
+        console.log("ΔV / Vmin:", ((V2 - V1) / V1) * 100, "%");
+        console.log("V0 (volume na posição x0):", V0, "cm³");
+        console.groupEnd();
+
+        console.group("Parâmetros termodinâmicos");
+        console.log("R:", R, "J/(mol·K)");
+        console.log("P0:", P0, "Pa | T0:", T0, "K");
+        console.log("Th:", Th, "K | Tc:", Tc, "K");
+        console.log("n (quantidade de matéria recalculada):", n, "mol");
+        console.groupEnd();
+
+        console.group("Coeficientes do modelo de Schmidt  P = n·R / (Ve/Th + Vc/Tc)");
+        console.log("n·R:", n * R, "J/K");
+        console.log("1/Th:", 1 / Th, "1/K | 1/Tc:", 1 / Tc, "1/K");
+        console.log("Vse/2:", Vse / 2, "cm³ | Vsc/2:", Vsc / 2, "cm³");
+        console.groupEnd();
+
+        console.group("Pressões calculadas");
+        console.log("P1 (Th, V1):", kPa(P1), "kPa");
+        console.log("P2 (Th, V2):", kPa(P2), "kPa");
+        console.log("P3 (Tc, V3):", kPa(P3), "kPa");
+        console.log("P4 (Tc, V4):", kPa(P4), "kPa");
+        console.log("Schmidt, mínima:", Math.min(...pSchmidt), "kPa | máxima:", Math.max(...pSchmidt), "kPa");
+        console.groupEnd();
+
+        console.group("Trabalho ideal (por ciclo)");
+        console.log("W12 (expansão isotérmica, Th):", w12, "J");
+        console.log("W34 (compressão isotérmica, Tc):", w34, "J");
+        console.log("W ideal = W12 + W34:", w, "J");
+        console.groupEnd();
+
+        console.group("Trabalho real (motor, modelo de Schmidt)");
+        console.log("W Schmidt = ∮ P dV:", cycleWorkModel, "J");
+        console.log("W Schmidt / W ideal:", (cycleWorkModel / w) * 100, "%");
+        console.groupEnd();
+
+        console.groupEnd();
+      }
+
+      omega = getOmegaForDeltaT(Th - Tc); // velocidade inicial coerente com ΔT inicial
+
+      recalculateModel();
+      updateWorkDisplay();
+      logModelSummary();
+
+      //*********************************
+      // Variáveis e Funções para Atualizar o Valor da Temperatura
+      //*********************************
+      let valueTemperatureCold = document.getElementById("coldSource");
+      let valueTemperatureHot = document.getElementById("hotSource");
+
+      //*********************************
+      // Funções Responsáveis por Atualizar em Tempo Real o valor Fonte Quente e Fonte Fria
+      //*********************************
+      function coldTemperatureUp() {
+        let audioButton = new Audio("./effect/click-369586.mp3");
+        audioButton.volume = 0.1;
+        audioButton.play();
+        if (valueTemperatureCold.textContent == 440) {
+          valueTemperatureCold.textContent = 440;
+        } else {
+          valueTemperatureCold.textContent =
+            Number(valueTemperatureCold.textContent) + 20;
+        }
+        Tc = Number(valueTemperatureCold.textContent);
+        updateChart();
+      }
+
+      function coldTemperatureDown() {
+        let audioButton = new Audio("./effect/click-369586.mp3");
+        audioButton.volume = 0.1;
+        audioButton.play();
+        if (valueTemperatureCold.textContent == 20) {
+          valueTemperatureCold.textContent = 20;
+        } else {
+          valueTemperatureCold.textContent =
+            Number(valueTemperatureCold.textContent) - 20;
+        }
+        Tc = Number(valueTemperatureCold.textContent);
+        updateChart();
+      }
+
+      function hotTemperatureUp() {
+        let audioButton = new Audio("./effect/click-369586.mp3");
+        audioButton.volume = 0.1;
+        audioButton.play();
+        if (valueTemperatureHot.textContent == 3000) {
+          valueTemperatureHot.textContent = 3000;
+        } else {
+          valueTemperatureHot.textContent =
+            Number(valueTemperatureHot.textContent) + 20;
+        }
+        Th = Number(valueTemperatureHot.textContent);
+        updateChart();
+      }
+
+      function hotTemperatureDown() {
+        let audioButton = new Audio("./effect/click-369586.mp3");
+        audioButton.volume = 0.1;
+        audioButton.play();
+        if (valueTemperatureHot.textContent == 500) {
+          valueTemperatureHot.textContent = 500;
+        } else {
+          valueTemperatureHot.textContent =
+            Number(valueTemperatureHot.textContent) - 20;
+        }
+        Th = Number(valueTemperatureHot.textContent);
+        updateChart();
+      }
+
+      //*********************************
+      // Gráfico que Mostra o Ciclo Stirling de Forma Simples
+      //*********************************
+      const chart = Highcharts.chart("circleStirling", {
+        chart: {
+          zooming: {
+            type: "xy",
+          },
+          panning: {
+            enabled: true,
+            type: "xy",
+          },
+        },
+
+        tooltip: {
+          formatter: function () {
+            return `
+                    <b>Volume:</b> ${this.x.toFixed(4)} cm³<br><b>Pressão:</b> ${this.y.toFixed(2)} kPa
+                    `;
+          },
+        },
+
+        exporting: {
+          enabled: true,
+        },
+
+        title: {
+          text: "Diagrama P-V",
+          align: "center",
+          style: {
+            color: "black",
+            fontSize: "18px",
+            fontWeight: "normal",
+            fontFamily: "sans-serif",
+          },
+        },
+        xAxis: {
+          labels: {
+            style: {
+              color: "black",
+              fontSize: "14px",
+              fontFamily: "sans-serif",
+            },
+          },
+          title: {
+            text: "Volume (cm³)",
+            style: {
+              color: "black",
+              fontSize: "16px",
+              fontWeight: "normal",
+              fontFamily: "sans-serif",
+            },
+          },
+          gridLineWidth: 1,
+          gridLineColor: "#ded9d9",
+          gridLineDashStyle: "ShortDash",
+          min: getAxisRange().min,
+          max: getAxisRange().max,
+          lineWidth: 1,
+          lineColor: "black",
+          tickWidth: 1,
+          tickColor: "black",
+        },
+
+        yAxis: {
+          labels: {
+            style: {
+              color: "black",
+              fontSize: "14px",
+              fontFamily: "sans-serif",
+            },
+          },
+          title: {
+            text: "Pressão (kPa)",
+            style: {
+              color: "black",
+              fontSize: "16px",
+              fontWeight: "normal",
+              fontFamily: "sans-serif",
+            },
+          },
+          gridLineWidth: 1,
+          gridLineColor: "#ded9d9",
+          gridLineDashStyle: "ShortDash",
+          min: 0,
+          lineWidth: 1,
+          lineColor: "black",
+          tickWidth: 1,
+          tickColor: "black",
+        },
+
+        legend: {
+          layout: "horizontal",
+          align: "center",
+          verticalAlign: "bottom",
+        },
+        series: [
+          {
+            name: `${Th} K`,
+            data: dataPh_gray,
+            color: "gray",
+            lineWidth: 1,
+            dashStyle: "Solid",
+            showInLegend: false,
+            marker: {
+              enabled: false,
+              states: { hover: { enabled: false } },
+            },
+            enableMouseTracking: false,
+            label: {
+              style: {
+                fontSize: "12px",
+              },
+            },
+          },
+          {
+            name: `${Tc} K`,
+            data: dataPc_gray,
+            color: "gray",
+            lineWidth: 1,
+            dashStyle: "Solid",
+            showInLegend: false,
+            marker: {
+              enabled: false,
+              states: { hover: { enabled: false } },
+            },
+            enableMouseTracking: false,
+            label: {
+              style: {
+                fontSize: "12px",
+              },
+            },
+          },
+          {
+            name: "Expansão Isotérmica (ideal)",
+            data: dataPh,
+            color: "red",
+            fillColor: "rgba(230, 173, 173, 1)",
+            lineWidth: 2,
+            dashStyle: "Solid",
+            marker: {
+              enabled: false,
+            },
+            label: {
+              enabled: false,
+            },
+          },
+          {
+            name: "Compressão Isotérmica (ideal)",
+            data: dataPc,
+            color: "blue",
+            fillColor: "rgba(173, 216, 230, 1)",
+            lineWidth: 2,
+            dashStyle: "Solid",
+            marker: {
+              enabled: false,
+            },
+            label: {
+              enabled: false,
+            },
+          },
+          {
+            name: "Aquecimento Isocórico (ideal)",
+            data: dataLine14,
+            color: "black",
+            lineWidth: 2,
+            dashStyle: "Solid",
+            marker: {
+              enabled: false,
+            },
+            label: {
+              enabled: false,
+            },
+          },
+          {
+            name: "Resfriamento Isocórico (ideal)",
+            data: dataLine23,
+            color: "purple",
+            lineWidth: 2,
+            dashStyle: "Solid",
+            marker: {
+              enabled: false,
+            },
+            label: {
+              enabled: false,
+            },
+          },
+          {
+            name: "Estado Atual",
+            type: "scatter",
+            data: [],
+            color: "orange",
+            marker: {
+              enabled: true,
+              radius: 7,
+              symbol: "circle",
+              lineWidth: 2,
+              lineColor: "black",
+            },
+            zIndex: 10,
+            enableMouseTracking: true,
+            showInLegend: true,
+            tooltip: {
+              pointFormatter: function () {
+                return `<b>Volume:</b> ${this.x.toFixed(4)} cm³<br><b>Pressão:</b> ${this.y.toFixed(2)} kPa`;
+              },
+            },
+          },
+          {
+            // Curva fechada do motor (modelo de Schmidt), uma volta, gerada por generateSchmidtCurve()
+            name: "Modelo de Schmidt",
+            data: dataSchmidt,
+            color: "#2e7d32",
+            lineWidth: 2,
+            dashStyle: "Solid",
+            marker: { enabled: false },
+            enableMouseTracking: false,
+            zIndex: 5,
+            label: { enabled: false },
+          },
+        ],
+      });
+
+      // SINCRONIZAÇÃO GRÁFICO x MOTOR: o motor e o gráfico compartilham a MESMA fase `angle_six_engine`
+      // (ângulo mestre; `angle` e os demais ângulos são derivados dele por setCycleAngle()).
+      // Em cada quadro: (1) o ângulo é atualizado em draw(); (2) calculateIdealCycleState(angle_six_engine)
+      // obtém (V, P) sobre as curvas do ciclo ideal; (3) o marcador é posto
+      // em (V, P) desse estado; (4) o motor é desenhado com o mesmo ângulo. O volume V do eixo
+      // horizontal é o volume TOTAL do gás (expansão + compressão, em cm³), e não a posição de um pistão.
+      // A linha de Schmidt continua sendo desenhada (generateSchmidtCurve), mas o marcador não a percorre mais.
+      // Índices das séries no array "series" do gráfico (ajuste se a posição mudar)
+      const CYCLE_POINT_SERIES_INDEX = 6;
+      const CYCLE_LOOP_SERIES_INDEX = 7;
+
+      // Posição [V, P] a uma fração f (0 a 1) ao longo de uma polilinha de pontos [V, P]. Usa os próprios
+      // pontos plotados (dataPh, dataPc, dataLine23, dataLine14), com interpolação linear entre vizinhos:
+      // o resultado fica exatamente sobre o segmento desenhado.
+      function pointOnPolyline(data, f) {
+        const x = Math.min(1, Math.max(0, f)) * (data.length - 1);
+        const i = Math.min(Math.floor(x), data.length - 2);
+        const u = x - i;
+        return [
+          data[i][0] + (data[i + 1][0] - data[i][0]) * u,
+          data[i][1] + (data[i + 1][1] - data[i][1]) * u,
+        ];
+      }
+
+      // Estado [V, P] do ponto atual sobre o CICLO IDEAL, em função de angle_six_engine (θ). Cada quarto
+      // de volta percorre uma curva ideal, na ordem e no sentido em que foram geradas (estados 1->2->3->4->1):
+      //   π    -> 3π/2: expansão isotérmica (Th), dataPh     (estado 1 -> 2)
+      //   3π/2 -> 2π:   resfriamento isocórico,   dataLine23 (estado 2 -> 3)
+      //   0    -> π/2:  compressão isotérmica (Tc), dataPc   (estado 3 -> 4)
+      //   π/2  -> π:    aquecimento isocórico,    dataLine14 (estado 4 -> 1)
+      // A fração f varia linearmente com θ em cada fase; nas junções f = 1 de uma fase e f = 0 da seguinte
+      // coincidem no mesmo estado, então não há saltos.
+      function calculateIdealCycleState(theta) {
+        const t = normalizeAngle(theta);
+        const quarter = Math.PI / 2;
+        let data, f;
+        if (t >= Math.PI && t < 1.5 * Math.PI) {
+          data = dataPh;
+          f = (t - Math.PI) / quarter;
+        } else if (t >= 1.5 * Math.PI) {
+          data = dataLine23;
+          f = (t - 1.5 * Math.PI) / quarter;
+        } else if (t < quarter) {
+          data = dataPc;
+          f = t / quarter;
+        } else {
+          data = dataLine14;
+          f = (t - quarter) / quarter;
+        }
+        const [V, P] = pointOnPolyline(data, f);
+        return { V, P };
+      }
+
+      // Atualiza o marcador "Estado Atual" sobre as curvas ideais, a partir de angle_six_engine (mesmo ângulo do desenho).
+      function updateCyclePointMarker() {
+        const state = calculateIdealCycleState(angle_six_engine + MARKER_PHASE_OFFSET);
+        chart.series[CYCLE_POINT_SERIES_INDEX].setData([[state.V, state.P]], true, false);
+      }
+
+      // ===================================================================================
+      // COR DA ÁREA INTERNA (ILUSTRATIVA), definida somente por angle_six_engine:
+      //   metade de π/2 a 3π/2 tende ao vermelho; a outra metade (por 2π/0), ao azul.
+      // A cor clareia até o tom claro em π/2 e 3π/2 e a outra cor se intensifica a partir dele.
+      // Acompanha play, step, rewind, reset e velocidade.
+      // ===================================================================================
+      const FLUID_RED = [255, 64, 64];
+      const FLUID_BLUE = [64, 64, 255];
+      const FLUID_FADE = [200, 200, 200]; // tom claro intermediário do fade
+      // Fade contínuo e simétrico em todo o ciclo, sem trecho de cor sólida estendido:
+      //   θ = π   -> vermelho sólido  | θ = π/2 e 3π/2 -> tom bem claro (branco)  | θ = 0 -> azul sólido
+      //   vermelho -> clareia -> azul  (π -> 3π/2 -> 2π/0)  e  azul -> clareia -> vermelho  (0 -> π/2 -> π)
+      // A intensidade da cor segue smoothstep(|−cos θ|): derivada nula nos extremos (cor sólida) e no
+      // ponto claro, então não há "quina" nem salto, nos dois sentidos de rotação (play/rewind).
+      function getFluidColor(theta) {
+        const u = -Math.cos(theta); // +1: vermelho sólido | 0: claro (π/2, 3π/2) | −1: azul sólido
+        const k = Math.abs(u); // 0 (claro) ... 1 (cor sólida)
+        const e = k * k * (3 - 2 * k); // smoothstep
+        const base = u >= 0 ? FLUID_RED : FLUID_BLUE;
+        const c = FLUID_FADE.map((f, i) => Math.round(f + (base[i] - f) * e));
+        return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+      }
+
+      // ===================================================================================
+      // ÂNGULO MESTRE: angle_six_engine determina o ponto do gráfico e todas as peças do motor.
+      //   π    -> 3π/2: expansão isotérmica     | 3π/2 -> 2π (0): resfriamento isocórico
+      //   0    -> π/2 : compressão isotérmica   | π/2  -> π     : aquecimento isocórico
+      // As defasagens das demais peças são as mesmas das condições iniciais originais.
+      // ===================================================================================
+      const TWO_PI = Math.PI * 2;
+      function normalizeAngle(a) {
+        return ((a % TWO_PI) + TWO_PI) % TWO_PI; // sempre em [0, 2π), inclusive ao retroceder
+      }
+      function setCycleAngle(theta) {
+        angle_six_engine = normalizeAngle(theta);
+        angle = angle_six_engine;
+        angle_one_engine = normalizeAngle(angle_six_engine + Math.PI / 2);
+        angle_two_engine = normalizeAngle(angle_six_engine - Math.PI / 2);
+        angle_five_engine = normalizeAngle(angle_six_engine + Math.PI / 2);
+      }
+      function getCyclePhase(theta) {
+        const t = normalizeAngle(theta);
+        if (t >= Math.PI && t < 1.5 * Math.PI) return "Expansão isotérmica";
+        if (t >= 1.5 * Math.PI) return "Resfriamento isocórico";
+        if (t < Math.PI / 2) return "Compressão isotérmica";
+        return "Aquecimento isocórico";
+      }
+
+      //*********************************
+      // Função que Atualiza os Cálculos em Tempo Real a Cada Modificação e Consequentemente o Gráfico
+      //*********************************
+      function updateChart() {
+        // Th/Tc mudaram: recalcula n, ciclo ideal, curva de Schmidt, isotermas e trabalhos
+        recalculateModel();
+        updateWorkDisplay();
+
+        omega = getOmegaForDeltaT(Th - Tc);
+
+        const axisRange = getAxisRange();
+        chart.xAxis[0].setExtremes(axisRange.min, axisRange.max, false);
+        chart.yAxis[0].setExtremes(null, P1 / 1000 + 50, false);
+
+        chart.series[0].setData(dataPh_gray, false);
+        chart.series[1].setData(dataPc_gray, false);
+        chart.series[2].setData(dataPh, false);
+        chart.series[3].setData(dataPc, false);
+        chart.series[4].setData(dataLine14, false);
+        chart.series[5].setData(dataLine23, false);
+        chart.series[CYCLE_LOOP_SERIES_INDEX].setData(dataSchmidt, false);
+
+        chart.series[0].update({ name: `${Th} K` }, false);
+        chart.series[1].update({ name: `${Tc} K` }, false);
+
+        chart.redraw();
+        updateCyclePointMarker();
+        logModelSummary();
+      }
+
+      //*********************************
+      // Variáveis Inciais Referentes ao Motor Stirling (Omega, Angulos Inciais, Escala e ect)
+      //*********************************
+      let isPlaying = false; // controla play/pause
+      let animation; // guarda o requestAnimationFrame atual
+      // let omega = 0.05; // Lento --> 0.01 | Normal --> 0.05 | Rápido --> 0.09
+      // Fase inicial SOMENTE do marcador "Estado Atual" do gráfico P-V: meio da curva vermelha (π a 3π/2).
+      // O motor e os ângulos (angle, angle_one/two/five/six_engine) continuam iniciando em π.
+      const MARKER_START_ANGLE = (5 * Math.PI) / 4;
+      const MARKER_PHASE_OFFSET = MARKER_START_ANGLE - Math.PI; // π/4, aplicado apenas ao marcador
+      let angle = Math.PI;
+      let angle_one_engine = (3 * Math.PI) / 2; // (3 * Math.PI) / 2 --> Máximo || Math.PI / 2 --> Mínimo
+      let angle_two_engine = Math.PI / 2;
+      let angle_five_engine = (3 * Math.PI) / 2;
+      let angle_six_engine = Math.PI;
+      let scale = 0.75; // Escala dos Desenhos em Geral
+      let hotAmount = 31; // Quantidade de Linhas da Fonte Quente
+      let hotSpacing = 20 * scale; // Espaçamento das Linhas da Fonte Quente
+
+      //*********************************
+      // Desenho e Animação do Motor
+      //*********************************
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // só atualiza os ângulos se estiver animando
+        if (isPlaying) setCycleAngle(angle_six_engine + omega);
+
+        updateCyclePointMarker(); // <-- nova linha
+
+        //*********************************
+        // Quadrado Referencia (Fonte Fria)
+        // ctx.beginPath();
+        // ctx.moveTo(xCenter - (300 * scale), yCenter - (30 * scale));
+        // ctx.lineTo(xCenter - (300 * scale), yCenter - (55 * scale));
+        // ctx.lineTo(xCenter - (275 * scale), yCenter - (55 * scale));
+        // ctx.lineTo(xCenter - (275 * scale), yCenter - (30 * scale));
+        // ctx.lineTo(xCenter - (300 * scale), yCenter - (30 * scale));
+        // ctx.fillStyle = "rgb(255, 111, 0)";
+        // ctx.strokeStyle = "blue";
+        // ctx.lineWidth = 1;
+        // // ctx.fill();
+        // ctx.stroke();
+        // ctx.closePath();
+
+        //*********************************
+        // Fonte Fria
+        ctx.beginPath();
+        ctx.moveTo(xCenter - 287.5 * scale, yCenter - 30 * scale);
+        ctx.lineTo(xCenter - 287.5 * scale, yCenter - 55 * scale);
+        ctx.moveTo(xCenter - 300 * scale, yCenter - 42.5 * scale);
+        ctx.lineTo(xCenter - 275 * scale, yCenter - 42.5 * scale);
+        ctx.moveTo(xCenter - 298 * scale, yCenter - 32 * scale);
+        ctx.lineTo(xCenter - 277 * scale, yCenter - 53 * scale);
+        ctx.moveTo(xCenter - 277 * scale, yCenter - 32 * scale);
+        ctx.lineTo(xCenter - 298 * scale, yCenter - 53 * scale);
+        ctx.strokeStyle = "blue";
+        ctx.lineWidth = 3;
+        ctx.lineCap = "round";
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Fonte Quente
+        function desenharFonteQuente(ctx) {
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.bezierCurveTo(
+            13 * scale,
+            13 * scale,
+            -13 * scale,
+            12.5 * scale,
+            0 * scale,
+            25 * scale,
+          );
+          ctx.stroke();
+        }
+
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "red";
+        ctx.lineCap = "round";
+
+        ctx.save();
+        ctx.translate(xCenter - 300 * scale, yCenter + 165 * scale);
+
+        for (let i = 0; i < hotAmount; i++) {
+          ctx.save();
+          ctx.translate(i * hotSpacing, 0);
+          desenharFonteQuente(ctx);
+          ctx.restore();
+        }
+        ctx.restore();
+        ctx.closePath();
+
+        //*********************************
+        // Parte Inferior do Compartimento (Quente)
+        ctx.beginPath();
+        ctx.moveTo(xCenter, yCenter + 150 * scale);
+        ctx.lineTo(xCenter - 300 * scale, yCenter + 150 * scale);
+        ctx.lineTo(xCenter - 300 * scale, yCenter + 135 * scale);
+        ctx.lineTo(xCenter - 300 * scale, yCenter + 135 * scale);
+        ctx.lineTo(xCenter + 300 * scale, yCenter + 135 * scale);
+        ctx.lineTo(xCenter + 300 * scale, yCenter + 150 * scale);
+        ctx.lineTo(xCenter, yCenter + 150 * scale);
+        ctx.fillStyle = "rgb(255, 111, 0)";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Parte Lateral Esquerda do Compartimento
+        ctx.beginPath();
+        ctx.moveTo(xCenter - 285 * scale, yCenter + 135 * scale);
+        ctx.lineTo(xCenter - 285 * scale, yCenter);
+        ctx.lineTo(xCenter - 270 * scale, yCenter);
+        ctx.lineTo(xCenter - 270 * scale, yCenter + 135 * scale);
+        ctx.lineTo(xCenter - 285 * scale, yCenter + 135 * scale);
+        ctx.fillStyle = "rgb(169, 169, 169)";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Parte Lateral Direita do Compartimento
+        ctx.beginPath();
+        ctx.moveTo(xCenter + 285 * scale, yCenter + 135 * scale);
+        ctx.lineTo(xCenter + 285 * scale, yCenter);
+        ctx.lineTo(xCenter + 270 * scale, yCenter);
+        ctx.lineTo(xCenter + 270 * scale, yCenter + 135 * scale);
+        ctx.lineTo(xCenter + 285 * scale, yCenter + 135 * scale);
+        ctx.fillStyle = "rgb(169, 169, 169)";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Parte Superior Esquerdo do Compartimento (Frio)
+        ctx.beginPath();
+        ctx.moveTo(xCenter - 7.5 * scale, yCenter);
+        ctx.lineTo(xCenter - 300 * scale, yCenter);
+        ctx.lineTo(xCenter - 300 * scale, yCenter - 15 * scale);
+        ctx.lineTo(xCenter - 7.5 * scale, yCenter - 15 * scale);
+        ctx.lineTo(xCenter - 7.5 * scale, yCenter);
+        ctx.fillStyle = "rgb(30,144,255)";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Parte Superior Central do Compartimento (Frio)
+        ctx.beginPath();
+        ctx.moveTo(xCenter + 7.5 * scale, yCenter);
+        ctx.lineTo(xCenter + 110 * scale, yCenter);
+        ctx.lineTo(xCenter + 110 * scale, yCenter - 15 * scale);
+        ctx.lineTo(xCenter + 7.5 * scale, yCenter - 15 * scale);
+        ctx.lineTo(xCenter + 7.5 * scale, yCenter);
+        ctx.fillStyle = "rgb(30,144,255)";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Parte Superior Direita do Compartimento (Frio)
+        ctx.beginPath();
+        ctx.moveTo(xCenter + 300 * scale, yCenter);
+        ctx.lineTo(xCenter + 200 * scale, yCenter);
+        ctx.lineTo(xCenter + 200 * scale, yCenter - 15 * scale);
+        ctx.lineTo(xCenter + 300 * scale, yCenter - 15 * scale);
+        ctx.lineTo(xCenter + 300 * scale, yCenter);
+        ctx.fillStyle = "rgb(30,144,255)";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Suporte Esquerdo do Pistão Deslocamento
+        ctx.beginPath();
+        ctx.moveTo(xCenter - 7.5 * scale, yCenter - 15 * scale);
+        ctx.lineTo(xCenter - 40 * scale, yCenter - 15 * scale);
+        ctx.lineTo(xCenter - 40 * scale, yCenter - 25 * scale);
+        ctx.lineTo(xCenter - 20 * scale, yCenter - 25 * scale);
+        ctx.lineTo(xCenter - 20 * scale, yCenter - 55 * scale);
+        ctx.lineTo(xCenter - 7.5 * scale, yCenter - 55 * scale);
+        ctx.lineTo(xCenter - 7.5 * scale, yCenter - 15 * scale);
+        ctx.fillStyle = "rgb(169, 169, 169)";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Suporte Direito do Pistão Deslocamento
+        ctx.beginPath();
+        ctx.moveTo(xCenter + 7.5 * scale, yCenter - 15 * scale);
+        ctx.lineTo(xCenter + 40 * scale, yCenter - 15 * scale);
+        ctx.lineTo(xCenter + 40 * scale, yCenter - 25 * scale);
+        ctx.lineTo(xCenter + 20 * scale, yCenter - 25 * scale);
+        ctx.lineTo(xCenter + 20 * scale, yCenter - 55 * scale);
+        ctx.lineTo(xCenter + 7.5 * scale, yCenter - 55 * scale);
+        ctx.lineTo(xCenter + 7.5 * scale, yCenter - 15 * scale);
+        ctx.fillStyle = "rgb(169, 169, 169)";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Suporte Esquerdo do Pistão Potência
+        ctx.beginPath();
+        ctx.moveTo(xCenter + 110 * scale, yCenter - 15 * scale);
+        ctx.lineTo(xCenter + 70 * scale, yCenter - 15 * scale);
+        ctx.lineTo(xCenter + 70 * scale, yCenter - 25 * scale);
+        ctx.lineTo(xCenter + 97.5 * scale, yCenter - 25 * scale);
+        ctx.lineTo(xCenter + 97.5 * scale, yCenter - 135 * scale);
+        ctx.lineTo(xCenter + 110 * scale, yCenter - 135 * scale);
+        ctx.lineTo(xCenter + 110 * scale, yCenter - 15 * scale);
+        ctx.fillStyle = "rgb(169, 169, 169)";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Suporte Direito do Pistão Potência
+        ctx.beginPath();
+        ctx.moveTo(xCenter + 240 * scale, yCenter - 15 * scale);
+        ctx.lineTo(xCenter + 200 * scale, yCenter - 15 * scale);
+        ctx.lineTo(xCenter + 200 * scale, yCenter - 135 * scale);
+        ctx.lineTo(xCenter + 212.5 * scale, yCenter - 135 * scale);
+        ctx.lineTo(xCenter + 212.5 * scale, yCenter - 25 * scale);
+        ctx.lineTo(xCenter + 240 * scale, yCenter - 25 * scale);
+        ctx.lineTo(xCenter + 240 * scale, yCenter - 15 * scale);
+        ctx.fillStyle = "rgb(169, 169, 169)";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Volante que da Impressão 3D
+        ctx.beginPath();
+        ctx.ellipse(
+          xCenter + 330 * scale,
+          yCenter - 217 * scale,
+          80 * scale,
+          150 * scale,
+          0,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fillStyle = "rgb(192, 192, 192)";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Linha que Fecha o Efeito 3D Superior e Superior
+        ctx.beginPath();
+        ctx.moveTo(xCenter + 330 * scale, yCenter - 217 * scale - 150 * scale);
+        ctx.lineTo(xCenter + 300 * scale, yCenter - 217 * scale - 150 * scale);
+        ctx.lineTo(xCenter + 300 * scale, yCenter - 217 * scale + 150 * scale);
+        ctx.lineTo(xCenter + 330 * scale, yCenter - 217 * scale + 150 * scale);
+        ctx.fillStyle = "rgb(192, 192, 192)";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Volante que Aparece na Frente
+        ctx.beginPath();
+        ctx.ellipse(
+          xCenter + 300 * scale,
+          yCenter - 217 * scale,
+          80 * scale,
+          150 * scale,
+          0,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fillStyle = "rgb(192, 192, 192)";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Circulo de Dentro do Volante
+        ctx.beginPath();
+        ctx.ellipse(
+          xCenter + 300 * scale + 58.664 * scale * Math.cos(angle),
+          yCenter - 217 * scale + 118 * scale * Math.sin(angle),
+          8 * scale,
+          16 * scale,
+          0,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fillStyle = "black";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+        // centro em x = xCenter - (262.5 * scale)
+        // centro em y = yCenter - (217 * scale)
+        // raio em x = 58.664 * scale
+        // raio em y = 118 * scale
+        // posição em x = xCenter - (262.5 * scale) + 58.664 * scale * Math.cos(angle)
+        // posição em x = yCenter - (217 * scale) + 118 * scale * Math.sin(angle)
+
+        //*********************************
+        // Área Interna
+        ctx.beginPath();
+        ctx.moveTo(xCenter + 270 * scale, yCenter + 135 * scale);
+        ctx.lineTo(xCenter - 270 * scale, yCenter + 135 * scale);
+        ctx.lineTo(xCenter - 270 * scale, yCenter);
+        ctx.lineTo(xCenter + 110 * scale, yCenter);
+        ctx.lineTo(
+          xCenter + 110 * scale,
+          yCenter - 42.5 * scale + 42.5 * scale * Math.cos(angle_two_engine),
+        );
+        ctx.lineTo(
+          xCenter + 200 * scale,
+          yCenter - 42.5 * scale + 42.5 * scale * Math.cos(angle_two_engine),
+        );
+        ctx.lineTo(xCenter + 200 * scale, yCenter);
+        ctx.lineTo(xCenter + 270 * scale, yCenter);
+        ctx.lineTo(xCenter + 270 * scale, yCenter + 135 * scale);
+        ctx.fillStyle = getFluidColor(angle_six_engine); // vermelho/azul conforme angle_six_engine
+        // ctx.strokeStyle = "black";
+        // ctx.lineWidth = 2;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        // ********************************************************************************
+        // Pistão Desloamento
+        ctx.beginPath();
+        ctx.moveTo(
+          xCenter,
+          yCenter +
+            50 * scale +
+            42.5 * scale * Math.sin(angle_one_engine) +
+            42.5 * scale,
+        );
+        ctx.lineTo(
+          xCenter - 260 * scale,
+          yCenter +
+            50 * scale +
+            42.5 * scale * Math.sin(angle_one_engine) +
+            42.5 * scale,
+        );
+        ctx.lineTo(
+          xCenter - 260 * scale,
+          yCenter + 42.5 * scale * Math.sin(angle_one_engine) + 42.5 * scale,
+        );
+        ctx.lineTo(
+          xCenter - 7.5 * scale,
+          yCenter + 42.5 * scale * Math.sin(angle_one_engine) + 42.5 * scale,
+        );
+        ctx.lineTo(
+          xCenter - 7.5 * scale,
+          yCenter -
+            217 * scale +
+            42.5 * scale * Math.sin(angle_one_engine) +
+            42.5 * scale,
+        ); // 217 + (42.5 * scale) = 259.5 - 42.5 = 217
+        ctx.lineTo(
+          xCenter + 7.5 * scale,
+          yCenter -
+            217 * scale +
+            42.5 * scale * Math.sin(angle_one_engine) +
+            42.5 * scale,
+        ); // 259.5 - 42.5 = 217
+        ctx.lineTo(
+          xCenter + 7.5 * scale,
+          yCenter + 42.5 * scale * Math.sin(angle_one_engine) + 42.5 * scale,
+        );
+        ctx.lineTo(
+          xCenter + 260 * scale,
+          yCenter + 42.5 * scale * Math.sin(angle_one_engine) + 42.5 * scale,
+        );
+        ctx.lineTo(
+          xCenter + 260 * scale,
+          yCenter +
+            50 * scale +
+            42.5 * scale * Math.sin(angle_one_engine) +
+            42.5 * scale,
+        );
+        ctx.lineTo(
+          xCenter,
+          yCenter +
+            50 * scale +
+            42.5 * scale * Math.sin(angle_one_engine) +
+            42.5 * scale,
+        );
+        ctx.fillStyle = "yellow";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Pistão Potência
+        ctx.beginPath();
+        ctx.moveTo(
+          xCenter + 200 * scale,
+          yCenter - 42.5 * scale + 42.5 * scale * Math.cos(angle_two_engine),
+        );
+        ctx.lineTo(
+          xCenter + 110 * scale,
+          yCenter - 42.5 * scale + 42.5 * scale * Math.cos(angle_two_engine),
+        );
+        ctx.lineTo(
+          xCenter + 110 * scale,
+          yCenter - 92.5 * scale + 42.5 * scale * Math.cos(angle_two_engine),
+        );
+        ctx.lineTo(
+          xCenter + 147.5 * scale,
+          yCenter - 92.5 * scale + 42.5 * scale * Math.cos(angle_two_engine),
+        );
+        ctx.lineTo(
+          xCenter + 147.5 * scale,
+          yCenter - 174.5 * scale + 42.5 * scale * Math.cos(angle_two_engine),
+        ); // 174.5 - 42.5 = 217 - 42.5 = 174.5
+        ctx.lineTo(
+          xCenter + 162.5 * scale,
+          yCenter - 174.5 * scale + 42.5 * scale * Math.cos(angle_two_engine),
+        ); // 174.5 - 42.5 = 217 - 42.5 = 174.5
+        ctx.lineTo(
+          xCenter + 162.5 * scale,
+          yCenter - 92.5 * scale + 42.5 * scale * Math.cos(angle_two_engine),
+        );
+        ctx.lineTo(
+          xCenter + 200 * scale,
+          yCenter - 92.5 * scale + 42.5 * scale * Math.cos(angle_two_engine),
+        );
+        ctx.lineTo(
+          xCenter + 200 * scale,
+          yCenter - 42.5 * scale + 42.5 * scale * Math.cos(angle_two_engine),
+        );
+        ctx.fillStyle = "green";
+        ctx.strokeStyle = "black";
+        // ctx.strokeStyle = "rgb(69, 68, 67)";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Pedaço do Virabrequim Direito
+        ctx.beginPath();
+        ctx.moveTo(xCenter + 200 * scale, yCenter - 217 * scale);
+        ctx.lineTo(xCenter + 300 * scale, yCenter - 217 * scale);
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 15 * scale;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.stroke();
+        ctx.closePath();
+
+        // Suporte Lateral Direito do Virabrequim
+        ctx.beginPath();
+        ctx.roundRect(
+          xCenter + 255 * scale,
+          yCenter - 255 * scale,
+          45 * scale,
+          240 * scale,
+          [22.5 * scale, 22.5 * scale, 0, 0],
+        );
+        ctx.fillStyle = "rgba(169, 169, 169, 0.5)";
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        // União (Efeito 3D)
+        ctx.beginPath();
+        ctx.moveTo(xCenter + 262.5 * scale, yCenter - 255 * scale);
+        ctx.lineTo(xCenter + 277.5 * scale, yCenter - 255 * scale);
+        ctx.fillStyle = "rgba(169, 169, 169, 0.5)";
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.roundRect(
+          xCenter + 240 * scale,
+          yCenter - 255 * scale,
+          45 * scale,
+          240 * scale,
+          [22.5 * scale, 22.5 * scale, 0, 0],
+        );
+        ctx.fillStyle = "rgba(169, 169, 169, 0.5)";
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Virabrequim
+        ctx.beginPath();
+        ctx.moveTo(xCenter - 130 * scale, yCenter - 217 * scale);
+        ctx.lineTo(xCenter - 45 * scale, yCenter - 217 * scale);
+        ctx.lineTo(
+          xCenter - 45 * scale + 21.25 * scale * Math.cos(angle_five_engine),
+          yCenter - 217 * scale + 42.5 * scale * Math.sin(angle_five_engine),
+        );
+        ctx.lineTo(
+          xCenter + 45 * scale + 21.25 * scale * Math.cos(angle_five_engine),
+          yCenter - 217 * scale + 42.5 * scale * Math.sin(angle_five_engine),
+        );
+        ctx.lineTo(xCenter + 45 * scale, yCenter - 217 * scale);
+        ctx.lineTo(xCenter + 110 * scale, yCenter - 217 * scale);
+        ctx.lineTo(
+          xCenter + 110 * scale + 21.25 * scale * Math.cos(angle_six_engine),
+          yCenter - 217 * scale + 42.5 * scale * Math.sin(angle_six_engine),
+        );
+        ctx.lineTo(
+          xCenter + 200 * scale + 21.25 * scale * Math.cos(angle_six_engine),
+          yCenter - 217 * scale + 42.5 * scale * Math.sin(angle_six_engine),
+        );
+        ctx.lineTo(xCenter + 200 * scale, yCenter - 217 * scale);
+        ctx.lineTo(xCenter + 262.5 * scale, yCenter - 217 * scale);
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 15 * scale;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Suporte Lateral Esquerdo do Virabrequim
+        ctx.beginPath();
+        ctx.roundRect(
+          xCenter - 135 * scale,
+          yCenter - 255 * scale,
+          45 * scale,
+          240 * scale,
+          [22.5 * scale, 22.5 * scale, 0, 0],
+        );
+        ctx.fillStyle = "rgb(169, 169, 169)";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        // União (Efeito 3D)
+        ctx.beginPath();
+        ctx.moveTo(xCenter - 127.5 * scale, yCenter - 20 * scale);
+        ctx.lineTo(xCenter - 127.5 * scale, yCenter - 255 * scale);
+        ctx.lineTo(xCenter - 112.5 * scale, yCenter - 255 * scale);
+        ctx.fillStyle = "rgb(169, 169, 169)";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.roundRect(
+          xCenter - 150 * scale,
+          yCenter - 255 * scale,
+          45 * scale,
+          240 * scale,
+          [22.5 * scale, 22.5 * scale, 0, 0],
+        );
+        ctx.fillStyle = "rgb(169, 169, 169)";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        // Pedaço do Virabrequim Esquerdo
+        ctx.beginPath();
+        ctx.moveTo(xCenter - 160 * scale, yCenter - 217 * scale);
+        ctx.lineTo(xCenter - 130 * scale, yCenter - 217 * scale);
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 15 * scale;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Manivela de Trás que faz o Efeito de Contorno Preto
+        ctx.beginPath();
+        ctx.arc(
+          xCenter + 21.25 * scale * Math.cos(angle_five_engine),
+          yCenter - 217 * scale + 42.5 * scale * Math.sin(angle_five_engine),
+          5,
+          0,
+          2 * Math.PI,
+          false,
+        );
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 17 * scale;
+        // ctx.fillStyle = "rgb(46, 53, 58)";
+        // ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.moveTo(
+          xCenter + 21.25 * scale * Math.cos(angle_five_engine),
+          yCenter - 217 * scale + 42.5 * scale * Math.sin(angle_five_engine),
+        );
+        ctx.lineTo(
+          xCenter,
+          yCenter -
+            209.5 * scale +
+            42.5 * scale * Math.sin(angle_five_engine) +
+            42.5 * scale,
+        );
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 22 * scale;
+        // ctx.fillStyle = "rgb(46, 53, 58)";
+        // ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.arc(
+          xCenter,
+          yCenter -
+            209.5 * scale +
+            42.5 * scale * Math.sin(angle_five_engine) +
+            42.5 * scale,
+          5,
+          2 * Math.PI,
+          false,
+        );
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 17 * scale;
+        // ctx.fillStyle = "rgb(46, 53, 58)";
+        // ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Manivela que Conecta o Pistão Deslocamento ao Virabrequim
+        ctx.beginPath();
+        ctx.arc(
+          xCenter + 21.25 * scale * Math.cos(angle_five_engine),
+          yCenter - 217 * scale + 42.5 * scale * Math.sin(angle_five_engine),
+          5,
+          0,
+          2 * Math.PI,
+          false,
+        );
+        ctx.strokeStyle = "rgb(169, 169, 169)";
+        ctx.lineWidth = 15 * scale;
+        // ctx.fillStyle = "rgb(46, 53, 58)";
+        // ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.moveTo(
+          xCenter + 21.25 * scale * Math.cos(angle_five_engine),
+          yCenter - 217 * scale + 42.5 * scale * Math.sin(angle_five_engine),
+        );
+        ctx.lineTo(
+          xCenter,
+          yCenter -
+            209.5 * scale +
+            42.5 * scale * Math.sin(angle_five_engine) +
+            42.5 * scale,
+        );
+        ctx.strokeStyle = "rgb(169, 169, 169)";
+        ctx.lineWidth = 20 * scale;
+        // ctx.fillStyle = "rgb(46, 53, 58)";
+        // ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.arc(
+          xCenter,
+          yCenter -
+            209.5 * scale +
+            42.5 * scale * Math.sin(angle_five_engine) +
+            42.5 * scale,
+          5,
+          2 * Math.PI,
+          false,
+        );
+        ctx.strokeStyle = "rgb(169, 169, 169)";
+        ctx.lineWidth = 15 * scale;
+        // ctx.fillStyle = "rgb(46, 53, 58)";
+        // ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Manivela de Trás que faz o Efeito de Contorno Preto
+        ctx.beginPath();
+        ctx.arc(
+          xCenter +
+            110 * scale +
+            45 * scale +
+            21.25 * scale * Math.cos(angle_six_engine),
+          yCenter - 217 * scale + 42.5 * scale * Math.sin(angle_six_engine),
+          5,
+          0,
+          2 * Math.PI,
+          false,
+        );
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 17 * scale;
+        // ctx.fillStyle = "rgb(46, 53, 58)";
+        // ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.moveTo(
+          xCenter +
+            110 * scale +
+            45 * scale +
+            21.25 * scale * Math.cos(angle_six_engine),
+          yCenter - 217 * scale + 42.5 * scale * Math.sin(angle_six_engine),
+        );
+        ctx.lineTo(
+          xCenter + 147.5 * scale + 7.5 * scale,
+          yCenter - 167 * scale + 42.5 * scale * Math.sin(angle_six_engine),
+        );
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 22 * scale;
+        // ctx.fillStyle = "rgb(46, 53, 58)";
+        // ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.arc(
+          xCenter + 147.5 * scale + 7.5 * scale,
+          yCenter - 167 * scale + 42.5 * scale * Math.sin(angle_six_engine),
+          5,
+          0,
+          2 * Math.PI,
+          false,
+        );
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 17 * scale;
+        // ctx.fillStyle = "rgb(46, 53, 58)";
+        // ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        //*********************************
+        // Manivela que Conecta o Pistão Deslocamento ao Virabrequim
+        ctx.beginPath();
+        ctx.arc(
+          xCenter +
+            110 * scale +
+            45 * scale +
+            21.25 * scale * Math.cos(angle_six_engine),
+          yCenter - 217 * scale + 42.5 * scale * Math.sin(angle_six_engine),
+          5,
+          0,
+          2 * Math.PI,
+          false,
+        );
+        ctx.strokeStyle = "rgb(169, 169, 169)";
+        ctx.lineWidth = 15 * scale;
+        // ctx.fillStyle = "rgb(46, 53, 58)";
+        // ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.moveTo(
+          xCenter +
+            110 * scale +
+            45 * scale +
+            21.25 * scale * Math.cos(angle_six_engine),
+          yCenter - 217 * scale + 42.5 * scale * Math.sin(angle_six_engine),
+        );
+        ctx.lineTo(
+          xCenter + 147.5 * scale + 7.5 * scale,
+          yCenter - 167 * scale + 42.5 * scale * Math.sin(angle_six_engine),
+        );
+        ctx.strokeStyle = "rgb(169, 169, 169)";
+        ctx.lineWidth = 20 * scale;
+        // ctx.fillStyle = "rgb(46, 53, 58)";
+        // ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.arc(
+          xCenter + 147.5 * scale + 7.5 * scale,
+          yCenter - 167 * scale + 42.5 * scale * Math.sin(angle_six_engine),
+          5,
+          0,
+          2 * Math.PI,
+          false,
+        );
+        ctx.strokeStyle = "rgb(169, 169, 169)";
+        ctx.lineWidth = 15 * scale;
+        // ctx.fillStyle = "rgb(46, 53, 58)";
+        // ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        if (isPlaying) {
+          animation = requestAnimationFrame(draw);
+        }
+      }
+
+      //*********************************
+      // Botões (Rewind, Play, Pause, Step, Reload)
+      //*********************************
+      function rewindSimulation() {
+        isPlaying = false;
+        let audioButton = new Audio("./effect/button-9-88354.mp3");
+        audioButton.volume = 0.1;
+        audioButton.play();
+        audioMachine.pause();
+        audioMachine.currentTime = 0;
+        let buttonPlay = document.getElementById("buttonPlay");
+        let buttonRewind = document.getElementById("buttonRewind");
+        let buttonStep = document.getElementById("buttonStep");
+        let buttonReload = document.getElementById("buttonReload");
+        // buttonRewind.disabled = true;
+        // buttonStep.disabled = false;
+        // buttonRewind.style.boxShadow = "inset 0px 0px 20px 20px rgba(226, 222, 218, 0.4), inset 0px 0px 20px 20px rgba(226, 222, 218, 0.4)";
+        // buttonRewind.style.backgroundColor = "rgb(69, 68, 67)";
+        // buttonStep.style.boxShadow = "inset 2px 2px 5px 2px rgba(226, 222, 218, 0.5), inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5)";
+        // buttonStep.style.backgroundColor = "";
+        // buttonPlay.querySelector("svg.play").style.display = "block";
+        // buttonPlay.querySelector("svg.pause").style.display = "none";
+        setCycleAngle(angle_six_engine - omega);
+        draw();
+      }
+
+      let audioMachine = new Audio(
+        "./effect/spooky-vending-machine-hum-20000.mp3",
+      );
+      function playSimulation() {
+        let audioButton = new Audio("./effect/button-9-88354.mp3");
+        audioButton.volume = 0.1;
+        audioButton.play();
+        let coldTemperatureUpButton = document.getElementById(
+          "coldTemperatureUpButton",
+        );
+        let coldTemperatureDownButton = document.getElementById(
+          "coldTemperatureDownButton",
+        );
+        let hotTemperatureUpButton = document.getElementById(
+          "hotTemperatureUpButton",
+        );
+        let hotTemperatureDownButton = document.getElementById(
+          "hotTemperatureDownButton",
+        );
+        let buttonPlay = document.getElementById("buttonPlay");
+        let buttonRewind = document.getElementById("buttonRewind");
+        let buttonStep = document.getElementById("buttonStep");
+        let buttonReload = document.getElementById("buttonReload");
+        buttonRewind.disabled = false;
+        buttonRewind.style.boxShadow =
+          "inset 2px 2px 5px 2px rgba(226, 222, 218, 0.5), inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5)";
+        buttonRewind.style.backgroundColor = "";
+        if (!isPlaying) {
+          isPlaying = true;
+
+          // coldTemperatureUpButton.querySelector("svg.cold-up").style.display = "none";
+          // coldTemperatureDownButton.querySelector("svg.cold-down").style.display = "none";
+          // hotTemperatureUpButton.querySelector("svg.hot-up").style.display = "none";
+          // hotTemperatureDownButton.querySelector("svg.hot-down").style.display = "none";
+
+          coldTemperatureUpButton.disabled = true;
+          coldTemperatureDownButton.disabled = true;
+          hotTemperatureUpButton.disabled = true;
+          hotTemperatureDownButton.disabled = true;
+
+          buttonRewind.disabled = true;
+          buttonRewind.style.boxShadow =
+            "inset 0px 0px 20px 20px rgba(226, 222, 218, 0.4), inset 0px 0px 20px 20px rgba(226, 222, 218, 0.4)";
+          buttonRewind.style.backgroundColor = "rgb(69, 68, 67)";
+          buttonPlay.querySelector("svg.play").style.display = "none";
+          buttonPlay.querySelector("svg.pause").style.display = "block";
+
+          buttonStep.disabled = true;
+          buttonStep.style.boxShadow =
+            "inset 0px 0px 20px 20px rgba(226, 222, 218, 0.4), inset 0px 0px 20px 20px rgba(226, 222, 218, 0.4)";
+          buttonStep.style.backgroundColor = "rgb(69, 68, 67)";
+          buttonPlay.querySelector("svg.play").style.display = "none";
+          buttonPlay.querySelector("svg.pause").style.display = "block";
+
+          // audioMachine.volume = 0.5;
+          // audioMachine.play();
+          animation = requestAnimationFrame(draw);
+        } else {
+          isPlaying = false;
+
+          coldTemperatureUpButton.disabled = false;
+          coldTemperatureDownButton.disabled = false;
+          hotTemperatureUpButton.disabled = false;
+          hotTemperatureDownButton.disabled = false;
+
+          buttonStep.disabled = false;
+          buttonStep.style.boxShadow =
+            "inset 2px 2px 5px 2px rgba(226, 222, 218, 0.5), inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5)";
+          buttonStep.style.backgroundColor = "";
+          buttonPlay.querySelector("svg.play").style.display = "block";
+          buttonPlay.querySelector("svg.pause").style.display = "none";
+          // audioMachine.volume = 0.5;
+          // audioMachine.pause();
+          cancelAnimationFrame(animation);
+        }
+      }
+
+      function stepSimulation() {
+        if (isPlaying) return;
+        let audioButton = new Audio("./effect/button-9-88354.mp3");
+        audioButton.volume = 0.1;
+        audioButton.play();
+        let buttonPlay = document.getElementById("buttonPlay");
+        let buttonRewind = document.getElementById("buttonRewind");
+        let buttonStep = document.getElementById("buttonStep");
+        let buttonReload = document.getElementById("buttonReload");
+        buttonRewind.disabled = false;
+        buttonRewind.style.boxShadow =
+          "inset 2px 2px 5px 2px rgba(226, 222, 218, 0.5), inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5)";
+        buttonRewind.style.backgroundColor = "";
+        setCycleAngle(angle_six_engine + omega);
+        draw();
+      }
+
+      function reloadSimulation() {
+        isPlaying = false;
+        let audioButton = new Audio("./effect/ui-button-click-5-327756.mp3");
+        audioButton.volume = 0.1;
+        audioButton.play();
+        // audioMachine.volume = 0.5;
+        // audioMachine.pause();
+        // audioMachine.currentTime = 0;
+        yCenter = canvas.height / 2.2;
+        omega = 0.05;
+        scale = 0.75;
+        // let minus = document.getElementById("minus");
+        // let cold = document.getElementById("cold");
+        // minus.disabled = false;
+        // cold.disabled = true;
+        // cold.style.boxShadow = "inset 0px 0px 20px 20px rgba(226, 222, 218, 0.4), inset 0px 0px 20px 20px rgba(226, 222, 218, 0.4)";
+        // cold.style.backgroundColor = "rgb(251, 255, 0)";
+        // minus.style.boxShadow = "inset 2px 2px 5px 2px rgba(226, 222, 218, 0.5), inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5)";
+        // minus.style.backgroundColor = "";
+        let coldTemperatureUpButton = document.getElementById(
+          "coldTemperatureUpButton",
+        );
+        let coldTemperatureDownButton = document.getElementById(
+          "coldTemperatureDownButton",
+        );
+        let hotTemperatureUpButton = document.getElementById(
+          "hotTemperatureUpButton",
+        );
+        let hotTemperatureDownButton = document.getElementById(
+          "hotTemperatureDownButton",
+        );
+
+        let buttonPlay = document.getElementById("buttonPlay");
+        let buttonRewind = document.getElementById("buttonRewind");
+        let buttonStep = document.getElementById("buttonStep");
+        let buttonReload = document.getElementById("buttonReload");
+
+        coldTemperatureUpButton.disabled = false;
+        coldTemperatureDownButton.disabled = false;
+        hotTemperatureUpButton.disabled = false;
+        hotTemperatureDownButton.disabled = false;
+
+        valueTemperatureCold.textContent = 100;
+        Tc = 100;
+        valueTemperatureHot.textContent = 1000;
+        Th = 1000;
+
+        buttonRewind.disabled = false;
+        buttonRewind.style.boxShadow =
+          "inset 2px 2px 5px 2px rgba(226, 222, 218, 0.5), inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5)";
+        buttonRewind.style.backgroundColor = "";
+        buttonStep.disabled = false;
+        buttonStep.style.boxShadow =
+          "inset 2px 2px 5px 2px rgba(226, 222, 218, 0.5), inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5)";
+        buttonStep.style.backgroundColor = "";
+        buttonPlay.querySelector("svg.play").style.display = "block";
+        buttonPlay.querySelector("svg.pause").style.display = "none";
+        setCycleAngle(Math.PI);
+        updateChart();
+        draw();
+      }
+
+      //*********************************
+      // Desenha o Motor e os Gráficos de Forma Estática
+      //*********************************
+      draw();
+    </script>
+  </body>
+</html>
