@@ -1263,9 +1263,9 @@
     </div>
 
     <script>
-      /* =====================================================================================
+      /*=================================
        * SIMULADOR DO MOTOR STIRLING LTD (TIPO GAMA) — SCRIPT PRINCIPAL
-       * =====================================================================================
+       *=================================
        * FINALIDADE
        *   Calcular, animar e exibir o ciclo de um motor Stirling tipo gama de baixo diferencial de
        *   temperatura (LTD): desenho animado do mecanismo (Canvas 2D), diagrama P-V (Highcharts) e
@@ -1299,11 +1299,11 @@
        * LAYOUT RESPONSIVO
        *   O posicionamento é feito pelo CSS. O Canvas tem resolução interna fixa (BLOCO 2) e é escalado
        *   por CSS sem distorção; o Highcharts acompanha o seu contêiner por reflow (BLOCO 11).
-       * ===================================================================================== */
+       *=================================*/
 
-      // =====================================================================================
+      //=================================
       // BLOCO 1 — INTERFACE INICIAL
-      // =====================================================================================
+      //=================================
       //*********************************
       // Carrega os Tooltipes (Mensagens que Aparecem em Cima do Botão  Retroceder, Play, Avançar e Resetar)
       //*********************************
@@ -1318,9 +1318,9 @@
         "https://drive.google.com/drive/folders/1gOEqbCceQGLohwpzx33D1t42AyJPtAXd?usp=sharing";
       document.getElementById("videoTutorialLink").href = VIDEO_TUTORIAL_URL;
 
-      // =====================================================================================
+      //=================================
       // BLOCO 1B — ESTADO INICIAL (INITIAL_STATE): FONTE ÚNICA DOS VALORES PADRÃO
-      // =====================================================================================
+      //=================================
       // Todo valor que a simulação pode alterar e que precisa voltar ao normal tem aqui o seu valor
       // inicial. A inicialização (declarações de Tc, Th, Dc, Sc, scale, ângulos, posição do motor…) e a
       // função reloadSimulation() leem ESTES valores; nenhum deles é repetido em outro lugar. Para
@@ -1342,9 +1342,9 @@
         yCenter: 286, // px lógicos — posição vertical do motor no Canvas
       };
 
-      // =====================================================================================
+      //=================================
       // BLOCO 2 — CANVAS: CONTEXTO, RESOLUÇÃO INTERNA E POSIÇÃO DO MOTOR
-      // =====================================================================================
+      //=================================
       // O tamanho EXIBIDO do Canvas é definido pelo CSS (cabe no painel mantendo a proporção 560:440,
       // sem distorção). A resolução INTERNA é fixa: o desenho usa coordenadas lógicas de
       // ENGINE_LOGICAL_WIDTH × ENGINE_LOGICAL_HEIGHT px e o bitmap tem ENGINE_RENDER_SCALE vezes esse
@@ -1371,9 +1371,9 @@
       let xCenter = INITIAL_STATE.xCenter;
       let yCenter = INITIAL_STATE.yCenter;
 
-      // =====================================================================================
+      //=================================
       // BLOCO 3 — VELOCIDADE DA ANIMAÇÃO (omega) E CONDIÇÕES INICIAIS
-      // =====================================================================================
+      //=================================
       //*********************************
       // Variaveis Inciais e Constantes para o Cálculo e Desenho do Ciclo Stirling
       //*********************************
@@ -1418,9 +1418,9 @@
       let Tc = INITIAL_STATE.Tc;
       let Th = INITIAL_STATE.Th;
 
-      // =====================================================================================
+      //=================================
       // BLOCO 4 — MODELO TERMODINÂMICO (ciclo ideal e modelo de Schmidt)
-      // =====================================================================================
+      //=================================
       // Ordem de dependência: geometria → volumes varridos → carga (n) → estados e curvas do ciclo ideal
       // → curva de Schmidt → isotermas de referência → trabalhos. Tudo é refeito por recalculateModel().
       //*********************************
@@ -1434,7 +1434,7 @@
       // concorda com as equações de volume abaixo SEM deslocamento de fase:
       //   deslocador (angle_one_engine = theta + π/2): espaço quente ∝ (1 − cos θ); frio ∝ (1 + cos θ)
       //   potência   (angle_two_engine = theta − π/2): volume ∝ (1 − cos(θ − dx)), com dx = π/2
-      // ================================================================================
+      //=================================
 
       // Geometria (mantida conforme os dados originais do modelo de referência)
       const De = 19.8; // cm — diâmetro do espaço de expansão
@@ -1759,9 +1759,9 @@
       updateWorkDisplay();
       logModelSummary();
 
-      // =====================================================================================
+      //=================================
       // BLOCO 5 — TEMPERATURAS DAS FONTES (UI)
-      // =====================================================================================
+      //=================================
       //*********************************
       // Variáveis e Funções para Atualizar o Valor da Temperatura
       //*********************************
@@ -1837,9 +1837,9 @@
         updateChart();
       }
 
-      // =====================================================================================
+      //=================================
       // BLOCO 6 — GRÁFICO P-V (HIGHCHARTS)
-      // =====================================================================================
+      //=================================
       /**
        * Diagrama P-V. Séries, na ordem do array "series":
        *   0 isoterma de referência Th (cinza)   | 1 isoterma de referência Tc (cinza)
@@ -2200,12 +2200,12 @@
         chart.series[CYCLE_POINT_SERIES_INDEX].setData([[state.V, state.P]], true, false);
       }
 
-      // ===================================================================================
+      //=================================
       // COR DA ÁREA INTERNA (ILUSTRATIVA), definida somente por angle_six_engine:
       //   metade de π/2 a 3π/2 tende ao vermelho; a outra metade (por 2π/0), ao azul.
       // A cor clareia até o tom claro em π/2 e 3π/2 e a outra cor se intensifica a partir dele.
       // Acompanha play, step, rewind, reset e velocidade.
-      // ===================================================================================
+      //=================================
       const FLUID_RED = [255, 64, 64];
       const FLUID_BLUE = [64, 64, 255];
       const FLUID_FADE = [200, 200, 200]; // tom claro intermediário do fade
@@ -2229,15 +2229,15 @@
         return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
       }
 
-      // =====================================================================================
+      //=================================
       // BLOCO 7 — ÂNGULO MESTRE E FASES DO CICLO
-      // =====================================================================================
-      // ===================================================================================
+      //=================================
+      //=================================
       // ÂNGULO MESTRE: angle_six_engine determina o ponto do gráfico e todas as peças do motor.
       //   π    -> 3π/2: expansão isotérmica     | 3π/2 -> 2π (0): resfriamento isocórico
       //   0    -> π/2 : compressão isotérmica   | π/2  -> π     : aquecimento isocórico
       // As defasagens das demais peças são as mesmas das condições iniciais originais.
-      // ===================================================================================
+      //=================================
       const TWO_PI = Math.PI * 2;
       /**
        * Reduz um ângulo ao intervalo [0, 2π), inclusive para valores negativos (rewind).
@@ -2273,9 +2273,9 @@
         return "Aquecimento isocórico";
       }
 
-      // =====================================================================================
+      //=================================
       // BLOCO 8 — ATUALIZAÇÃO DO MODELO E DO GRÁFICO
-      // =====================================================================================
+      //=================================
       //*********************************
       // Função que Atualiza os Cálculos em Tempo Real a Cada Modificação e Consequentemente o Gráfico
       //*********************************
@@ -2346,9 +2346,9 @@
         logModelSummary();
       }
 
-      // =====================================================================================
+      //=================================
       // BLOCO 9 — ANIMAÇÃO DO CANVAS
-      // =====================================================================================
+      //=================================
       // Estado da animação: isPlaying (play/pause), animation (id do requestAnimationFrame), os ângulos
       // do mecanismo (derivados de angle_six_engine por setCycleAngle) e a escala dos desenhos.
       //*********************************
@@ -2391,21 +2391,6 @@
         if (isPlaying) setCycleAngle(angle_six_engine + omega);
 
         updateCyclePointMarker(); // <-- nova linha
-
-        //*********************************
-        // Quadrado Referencia (Fonte Fria)
-        // ctx.beginPath();
-        // ctx.moveTo(xCenter - (300 * scale), yCenter - (30 * scale));
-        // ctx.lineTo(xCenter - (300 * scale), yCenter - (55 * scale));
-        // ctx.lineTo(xCenter - (275 * scale), yCenter - (55 * scale));
-        // ctx.lineTo(xCenter - (275 * scale), yCenter - (30 * scale));
-        // ctx.lineTo(xCenter - (300 * scale), yCenter - (30 * scale));
-        // ctx.fillStyle = "rgb(255, 111, 0)";
-        // ctx.strokeStyle = "blue";
-        // ctx.lineWidth = 1;
-        // // ctx.fill();
-        // ctx.stroke();
-        // ctx.closePath();
 
         //*********************************
         // Fonte Fria
@@ -2686,12 +2671,6 @@
         ctx.fill();
         ctx.stroke();
         ctx.closePath();
-        // centro em x = xCenter - (262.5 * scale)
-        // centro em y = yCenter - (217 * scale)
-        // raio em x = 58.664 * scale
-        // raio em y = 118 * scale
-        // posição em x = xCenter - (262.5 * scale) + 58.664 * scale * Math.cos(angle)
-        // posição em x = yCenter - (217 * scale) + 118 * scale * Math.sin(angle)
 
         //*********************************
         // Área Interna
@@ -2712,13 +2691,11 @@
         ctx.lineTo(xCenter + 270 * scale, yCenter);
         ctx.lineTo(xCenter + 270 * scale, yCenter + 135 * scale);
         ctx.fillStyle = getFluidColor(angle_six_engine); // vermelho/azul conforme angle_six_engine
-        // ctx.strokeStyle = "black";
-        // ctx.lineWidth = 2;
         ctx.fill();
         ctx.stroke();
         ctx.closePath();
 
-        // ********************************************************************************
+        //*********************************
         // Pistão Desloamento
         ctx.beginPath();
         ctx.moveTo(
@@ -2827,7 +2804,6 @@
         );
         ctx.fillStyle = "green";
         ctx.strokeStyle = "black";
-        // ctx.strokeStyle = "rgb(69, 68, 67)";
         ctx.lineWidth = 1;
         ctx.fill();
         ctx.stroke();
@@ -2987,8 +2963,6 @@
         );
         ctx.strokeStyle = "black";
         ctx.lineWidth = 17 * scale;
-        // ctx.fillStyle = "rgb(46, 53, 58)";
-        // ctx.fill();
         ctx.stroke();
         ctx.closePath();
 
@@ -3006,8 +2980,6 @@
         );
         ctx.strokeStyle = "black";
         ctx.lineWidth = 22 * scale;
-        // ctx.fillStyle = "rgb(46, 53, 58)";
-        // ctx.fill();
         ctx.stroke();
         ctx.closePath();
 
@@ -3024,8 +2996,6 @@
         );
         ctx.strokeStyle = "black";
         ctx.lineWidth = 17 * scale;
-        // ctx.fillStyle = "rgb(46, 53, 58)";
-        // ctx.fill();
         ctx.stroke();
         ctx.closePath();
 
@@ -3042,8 +3012,6 @@
         );
         ctx.strokeStyle = "rgb(169, 169, 169)";
         ctx.lineWidth = 15 * scale;
-        // ctx.fillStyle = "rgb(46, 53, 58)";
-        // ctx.fill();
         ctx.stroke();
         ctx.closePath();
 
@@ -3061,8 +3029,6 @@
         );
         ctx.strokeStyle = "rgb(169, 169, 169)";
         ctx.lineWidth = 20 * scale;
-        // ctx.fillStyle = "rgb(46, 53, 58)";
-        // ctx.fill();
         ctx.stroke();
         ctx.closePath();
 
@@ -3079,8 +3045,6 @@
         );
         ctx.strokeStyle = "rgb(169, 169, 169)";
         ctx.lineWidth = 15 * scale;
-        // ctx.fillStyle = "rgb(46, 53, 58)";
-        // ctx.fill();
         ctx.stroke();
         ctx.closePath();
 
@@ -3100,8 +3064,6 @@
         );
         ctx.strokeStyle = "black";
         ctx.lineWidth = 17 * scale;
-        // ctx.fillStyle = "rgb(46, 53, 58)";
-        // ctx.fill();
         ctx.stroke();
         ctx.closePath();
 
@@ -3119,8 +3081,6 @@
         );
         ctx.strokeStyle = "black";
         ctx.lineWidth = 22 * scale;
-        // ctx.fillStyle = "rgb(46, 53, 58)";
-        // ctx.fill();
         ctx.stroke();
         ctx.closePath();
 
@@ -3135,8 +3095,6 @@
         );
         ctx.strokeStyle = "black";
         ctx.lineWidth = 17 * scale;
-        // ctx.fillStyle = "rgb(46, 53, 58)";
-        // ctx.fill();
         ctx.stroke();
         ctx.closePath();
 
@@ -3156,8 +3114,6 @@
         );
         ctx.strokeStyle = "rgb(169, 169, 169)";
         ctx.lineWidth = 15 * scale;
-        // ctx.fillStyle = "rgb(46, 53, 58)";
-        // ctx.fill();
         ctx.stroke();
         ctx.closePath();
 
@@ -3175,8 +3131,6 @@
         );
         ctx.strokeStyle = "rgb(169, 169, 169)";
         ctx.lineWidth = 20 * scale;
-        // ctx.fillStyle = "rgb(46, 53, 58)";
-        // ctx.fill();
         ctx.stroke();
         ctx.closePath();
 
@@ -3191,8 +3145,6 @@
         );
         ctx.strokeStyle = "rgb(169, 169, 169)";
         ctx.lineWidth = 15 * scale;
-        // ctx.fillStyle = "rgb(46, 53, 58)";
-        // ctx.fill();
         ctx.stroke();
         ctx.closePath();
 
@@ -3201,9 +3153,9 @@
         }
       }
 
-      // =====================================================================================
+      //=================================
       // BLOCO 10 — CONTROLES: REWIND, PLAY/PAUSE, STEP E RELOAD
-      // =====================================================================================
+      //=================================
       // Os botões chamam estas funções por onclick (atributos no HTML). Durante a animação, rewind, step
       // e os botões de temperatura ficam desabilitados; o estado visual é aplicado por estilo inline.
       //*********************************
@@ -3223,14 +3175,6 @@
         let buttonRewind = document.getElementById("buttonRewind");
         let buttonStep = document.getElementById("buttonStep");
         let buttonReload = document.getElementById("buttonReload");
-        // buttonRewind.disabled = true;
-        // buttonStep.disabled = false;
-        // buttonRewind.style.boxShadow = "inset 0px 0px 20px 20px rgba(226, 222, 218, 0.4), inset 0px 0px 20px 20px rgba(226, 222, 218, 0.4)";
-        // buttonRewind.style.backgroundColor = "rgb(69, 68, 67)";
-        // buttonStep.style.boxShadow = "inset 2px 2px 5px 2px rgba(226, 222, 218, 0.5), inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5)";
-        // buttonStep.style.backgroundColor = "";
-        // buttonPlay.querySelector("svg.play").style.display = "block";
-        // buttonPlay.querySelector("svg.pause").style.display = "none";
         setCycleAngle(angle_six_engine - omega);
         draw();
       }
@@ -3270,12 +3214,6 @@
         buttonRewind.style.backgroundColor = "";
         if (!isPlaying) {
           isPlaying = true;
-
-          // coldTemperatureUpButton.querySelector("svg.cold-up").style.display = "none";
-          // coldTemperatureDownButton.querySelector("svg.cold-down").style.display = "none";
-          // hotTemperatureUpButton.querySelector("svg.hot-up").style.display = "none";
-          // hotTemperatureDownButton.querySelector("svg.hot-down").style.display = "none";
-
           coldTemperatureUpButton.disabled = true;
           coldTemperatureDownButton.disabled = true;
           hotTemperatureUpButton.disabled = true;
@@ -3295,8 +3233,6 @@
           buttonPlay.querySelector("svg.play").style.display = "none";
           buttonPlay.querySelector("svg.pause").style.display = "block";
 
-          // audioMachine.volume = 0.5;
-          // audioMachine.play();
           animation = requestAnimationFrame(draw);
         } else {
           isPlaying = false;
@@ -3312,8 +3248,6 @@
           buttonStep.style.backgroundColor = "";
           buttonPlay.querySelector("svg.play").style.display = "block";
           buttonPlay.querySelector("svg.pause").style.display = "none";
-          // audioMachine.volume = 0.5;
-          // audioMachine.pause();
           cancelAnimationFrame(animation);
         }
       }
@@ -3357,9 +3291,6 @@
         let audioButton = new Audio("./effect/ui-button-click-5-327756.mp3");
         audioButton.volume = 0.1;
         audioButton.play();
-        // audioMachine.volume = 0.5;
-        // audioMachine.pause();
-        // audioMachine.currentTime = 0;
 
         // 2. Variáveis de estado (valores de INITIAL_STATE)
         Tc = INITIAL_STATE.Tc;
@@ -3417,9 +3348,9 @@
         draw();
       }
 
-      // =====================================================================================
+      //=================================
       // BLOCO 11 — INICIALIZAÇÃO
-      // =====================================================================================
+      //=================================
       // Responsividade do gráfico: o Highcharts já reage ao evento resize da janela; o ResizeObserver
       // cobre também mudanças do contêiner sem resize da janela (troca de retrato/paisagem, barra do
       // navegador móvel, mudança de layout por breakpoint). reflow() só ajusta o tamanho do gráfico:
