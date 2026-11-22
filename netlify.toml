@@ -1,0 +1,5 @@
+# Site estático (HTML + CSS + JavaScript): não há etapa de build.
+# O Netlify publica a raiz do repositório. As bibliotecas ficam em assets/vendor (versionadas no Git),
+# porque a pasta node_modules NÃO é publicada pelo Netlify.
+[build]
+  publish = "."

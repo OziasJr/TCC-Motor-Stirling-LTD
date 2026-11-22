@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "vendor": "node scripts/vendor-libs.mjs",
+    "check": "node scripts/check-references.mjs"
+  },
   "dependencies": {
     "bootstrap": "^5.3.9",
     "highcharts": "^12.6.1"
