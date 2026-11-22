@@ -4,6 +4,14 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0e1116" />
+    <!-- Tipografia: Inter (ver --font-sans no CSS). Se a fonte não carregar, o navegador usa a fonte do sistema. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
     <link
       rel="stylesheet"
       href="./node_modules/bootstrap/dist/css/bootstrap.min.css"
@@ -14,393 +22,428 @@
       integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
       crossorigin="anonymous"
     ></script>
-    <!-- <script src="./node_modules/highcharts/css/highcharts.css"></script> -->
+    <script src="./node_modules/highcharts/css/highcharts.css"></script>
     <script src="./node_modules/highcharts/highcharts.src.js"></script>
     <script src="./node_modules/highcharts/modules/accessibility.js"></script>
     <script src="./node_modules/highcharts/modules/exporting.src.js"></script>
     <title>Motor Stirling: Gama</title>
     <style>
+      /* =====================================================================
+         ÍNDICE DO CSS
+         1. Variáveis (cores, tipografia, medidas)      6. Controles (play, reload, temperaturas, trabalho)
+         2. Base / reset                                7. Barra inferior e menu de materiais
+         3. Estrutura da página (grid)                  8. Breakpoints: ≤1200, ≤1000, retrato/≤700, ≤400
+         4. Cabeçalho                                   9. Ajustes para toque e fallback sem container queries
+         5. Painéis (motor e gráfico)
+         ===================================================================== */
+
+      /* ------------------ 1. Variáveis ----------------- */
+      :root {
+        /* Cores: o par frio (azul) / quente (laranja) é o motivo visual do projeto */
+        --cold: rgb(30, 144, 255);
+        --hot: rgb(255, 111, 0);
+        --ink: #1d2433;
+        --ink-soft: #4a5468;
+        --line: #dde2ea;
+        --surface: #ffffff;
+        --dark: rgb(69, 68, 67);
+        --nav-bg: #0e1116;
+        --focus: rgba(30, 144, 255, 0.6);
+
+        /* Tipografia */
+        --font-sans:
+          "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+
+        /* Forma */
+        --radius: 12px;
+        --radius-sm: 6px;
+        --shadow-sm:
+          0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.1);
+        --btn-shadow:
+          inset 2px 2px 5px 2px rgba(226, 222, 218, 0.5),
+          inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5);
+        --btn-shadow-pressed:
+          inset 0 0 5px 8px rgba(226, 222, 218, 0.4),
+          inset 0 0 5px 8px rgba(226, 222, 218, 0.4);
+
+        /* Medidas que mudam nos breakpoints */
+        --pad: clamp(8px, 1.4vw, 20px);
+        --footer-h: clamp(48px, 8vh, 72px);
+        --btn-sm: 34px; /* rewind, step, reload */
+        --btn-lg: 54px; /* play / pause */
+        --arrow-size: 14px; /* botões ▲/▼ das temperaturas */
+        --temp-w: 120px; /* largura do valor de temperatura */
+        --eng-cap: clamp(560px, 35vw, 700px); /* largura máxima do Canvas do motor */
+        --chart-cap: clamp(560px, 42vw, 720px); /* largura máxima do gráfico P-V */
+        --chart-ratio: 3 / 2; /* proporção largura/altura do gráfico */
+      }
+
+      /* ------------------ 2. Base ----------------- */
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: sans-serif;
       }
 
-      .container-box {
-        width: 100vw;
-        height: 100vh;
-        align-items: center;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        overflow: hidden;
-        position: relative;
-      }
-
-      .header {
-        display: flex;
-        align-items: center;
-      }
-
-      /* ------------------ Título ----------------- */
-      .title-menu {
-        min-width: 95vw;
-        display: flex;
-        justify-content: center;
-      }
-
-      /* ------------------ Botão de Menu ----------------- */
-      .button-box-menu {
-        width: 4vw;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .button-box-menu a {
-        border: 1px solid rgb(69, 68, 67, 0.5);
-      }
-
-      .button-menu {
-        border-radius: 50%;
-        width: 34px;
-        height: 34px;
-        background-color: rgb(0, 132, 255);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: auto;
-        box-shadow:
-          inset 2px 2px 5px 2px rgba(255, 255, 255, 0.5),
-          inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5);
-      }
-
-      .button-menu:hover {
-        background-color: rgb(0, 132, 255, 0.9);
-      }
-
-      .button-menu:active {
-        background-color: rgb(0, 132, 255);
-        box-shadow:
-          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4),
-          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4);
-      }
-
-      .menu {
-        width: 24px;
-        height: 24px;
-      }
-
-      .menu path {
-        color: #fff;
-      }
-
-      .button-box {
-        position: absolute;
-        bottom: calc(100vh - 91%);
-        width: 100vw;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .button-box button {
+      /* O Bootstrap define margens em p/h1/ul com seletor de elemento; este reset vem depois e prevalece */
+      p,
+      h1,
+      ul {
         margin: 0;
-        border: 1px solid rgb(69, 68, 67, 0.5);
+        padding: 0;
+      }
+
+      html {
+        font-family: var(--font-sans);
+        color: var(--ink);
+        -webkit-text-size-adjust: 100%;
+      }
+
+      body {
+        background: var(--surface);
+        overflow-x: hidden;
+      }
+
+      button,
+      input {
+        font-family: inherit;
+      }
+
+      button:focus-visible,
+      a:focus-visible {
+        outline: 3px solid var(--focus);
+        outline-offset: 2px;
+      }
+
+      /* ------------------ 3. Estrutura da página ----------------- */
+      /* Telas largas: painel de altura fixa (cabeçalho / palco / barra inferior).
+         Telas estreitas: a página rola na vertical (ver breakpoints). */
+      .container-box {
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        min-height: 560px;
+        display: grid;
+        /* minmax(0, 1fr): a coluna não cresce com o conteúdo (ex.: o Highcharts guarda a largura anterior
+           até o reflow) — sem isso o layout não encolheria depois de reduzir a janela */
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        overflow-x: clip;
+      }
+
+      .stage {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) auto;
+        min-width: 0;
+        min-height: 0;
+      }
+
+      .panels {
+        display: grid;
+        /* levemente mais largo para o motor: mantém o desenho na escala de referência (0,75) em notebooks */
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+        gap: var(--pad);
+        padding: var(--pad) var(--pad) 0;
+        min-height: 0;
+      }
+
+      /* ------------------ 4. Cabeçalho (título) ----------------- */
+      .header {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px var(--pad) 11px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(30, 144, 255, 0.16) 0%,
+            rgba(30, 144, 255, 0) 38%,
+            rgba(255, 111, 0, 0) 62%,
+            rgba(255, 111, 0, 0.18) 100%
+          ),
+          var(--surface);
+      }
+
+      /* Filete frio → quente sob o título */
+      .header::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 3px;
+        background: linear-gradient(
+          90deg,
+          var(--cold) 0%,
+          rgba(30, 144, 255, 0.35) 40%,
+          rgba(255, 111, 0, 0.35) 60%,
+          var(--hot) 100%
+        );
+      }
+
+      .title-menu {
+        min-width: 0;
+        display: flex;
+        justify-content: center;
+      }
+
+      .app-title {
+        font-size: clamp(1.1rem, 0.8rem + 1.3vw, 2rem);
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        line-height: 1.2;
+        color: var(--ink);
+        text-align: center;
+        text-wrap: balance;
+      }
+
+      .title-sub {
+        display: inline-block;
+        font-weight: 500;
+        color: var(--ink-soft);
+      }
+
+      /* ------------------ 5. Painéis ----------------- */
+      .engine-panel,
+      .chart-panel {
+        min-width: 0;
+        min-height: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-sm);
+        container-type: size; /* habilita as unidades cqw/cqh dos filhos */
+      }
+
+      /* Motor: [coluna das temperaturas] + [Canvas]. O Canvas mantém a proporção do desenho
+         (560 × 440) e cabe no painel sem distorção; --eng-w/--eng-h são usados pelo Canvas e
+         pela coluna de temperaturas para ficarem alinhados. */
+      .engine-stage {
+        --temps-w: calc(var(--temp-w) + var(--arrow-size) + 12px);
+        --eng-w: min(100cqw - var(--temps-w), 100cqh * 560 / 440, var(--eng-cap));
+        --eng-h: calc(var(--eng-w) * 440 / 560);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .engine-stage canvas {
+        flex: 0 0 auto;
+        display: block;
+        width: var(--eng-w);
+        height: var(--eng-h);
+      }
+
+      .temperature-controls {
+        position: relative;
+        flex: 0 0 var(--temps-w);
+        width: var(--temps-w);
+        height: var(--eng-h);
+      }
+
+      /* Gráfico P-V: o Highcharts preenche este contêiner (proporção fixa) e se redimensiona com ele */
+      #circleStirling {
+        width: min(100cqw, 100cqh * 3 / 2, var(--chart-cap));
+        aspect-ratio: var(--chart-ratio);
+        max-width: 100%;
+      }
+
+      /* ------------------ 6. Controles ----------------- */
+      .controls {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: center;
+        column-gap: var(--pad);
+        padding: 10px var(--pad) 12px;
+      }
+
+      /* Os dois blocos do .button-box entram direto na grade de .controls */
+      .button-box {
+        display: contents;
       }
 
       .button-box-principal {
-        width: calc(100vw - 24px);
+        grid-column: 2;
+        grid-row: 1;
         display: flex;
         justify-content: center;
         align-items: center;
-      }
-
-      .button-box-principal button + button {
-        margin-left: 15px;
+        gap: 15px;
       }
 
       .button-box-reload {
-        width: 4vw;
+        grid-column: 3;
+        grid-row: 1;
+        justify-self: end;
         display: flex;
         justify-content: center;
         align-items: center;
       }
 
-      /* ------------------ Botão de Rewind ----------------- */
-      .button-rewind {
-        border-radius: 50%;
-        width: 34px;
-        height: 34px;
-        background-color: rgb(69, 68, 67);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: auto;
-      }
-
-      .button-rewind:hover {
-        background-color: rgb(69, 68, 67, 0.9);
-      }
-
-      .button-rewind:active {
-        background-color: rgb(69, 68, 67);
-        box-shadow:
-          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4),
-          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4);
-      }
-
-      .rewind {
-        width: 24px;
-        height: 24px;
-      }
-
-      /* -------------------------------------------------- */
-
-      /* -------------- Botão de Play e Pause ------------- */
-      .button-play {
-        border-radius: 50%;
-        width: 54px;
-        height: 54px;
-        background-color: rgb(69, 68, 67);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: auto;
-        box-shadow:
-          inset 2px 2px 5px 2px rgba(226, 222, 218, 0.5),
-          inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5);
-      }
-
-      .button-play:hover {
-        background-color: rgb(69, 68, 67, 0.9);
-      }
-
-      .button-play:active {
-        background-color: rgb(69, 68, 67);
-        box-shadow:
-          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4),
-          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4);
-      }
-
-      .play {
-        width: 44px;
-        height: 44px;
-      }
-
-      .pause {
-        width: 44px;
-        height: 44px;
-      }
-
-      /* -------------------------------------------------- */
-
-      /* ------------------ Botão de Step ----------------- */
-      .button-step {
-        border-radius: 50%;
-        width: 34px;
-        height: 34px;
-        background-color: rgb(69, 68, 67);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: auto;
-        margin-right: 15px !important;
-      }
-
-      .button-step:hover {
-        background-color: rgb(69, 68, 67, 0.9);
-      }
-
-      .button-step:active {
-        background-color: rgb(69, 68, 67);
-        box-shadow:
-          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4),
-          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4);
-      }
-
-      .step {
-        width: 24px;
-        height: 24px;
-      }
-
-      /* -------------------------------------------------- */
-
-      /* ------------------ Opções de Velocidade ----------------- */
-      .form-box {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .form-box-fast,
-      .form-box-regular,
-      .form-box-low {
-        display: flex;
-        align-items: center;
-      }
-
-      .form-box-fast input,
-      .form-box-fast label,
-      .form-box-regular input,
-      .form-box-regular label,
-      .form-box-low input,
-      .form-box-low label {
-        padding: 0px 5px 0px 5px;
-        color: rgb(69, 68, 67);
-      }
-
-      .form-box-fast input,
-      .form-box-regular input,
-      .form-box-low input {
-        width: 24px;
-        height: 24px;
-        background-color: rgb(69, 68, 67);
-      }
-
-      .form-box-fast input:hover,
-      .form-box-fast label:hover,
-      .form-box-regular input:hover,
-      .form-box-regular label:hover,
-      .form-box-low input:hover,
-      .form-box-low label:hover {
-        cursor: pointer;
-      }
-
-      /* -------------------------------------------------- */
-
-      /* ------------------ Botão de Reload ----------------- */
+      /* Botões redondos (rewind, play, step, reload) */
+      .button-rewind,
+      .button-play,
+      .button-step,
       .button-reload {
+        flex: 0 0 auto;
         border-radius: 50%;
-        width: 34px;
-        height: 34px;
-        background-color: rgb(255, 128, 0);
+        border: 1px solid rgba(69, 68, 67, 0.5);
         display: flex;
         justify-content: center;
         align-items: center;
-        margin: auto;
-        box-shadow:
-          inset 2px 2px 5px 2px rgba(255, 255, 255, 0.5),
-          inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5);
+        background-color: var(--dark);
+        color: #f5f5f4;
+        box-shadow: var(--btn-shadow);
+        transition: filter 0.15s ease;
       }
 
+      .button-rewind,
+      .button-step,
+      .button-reload {
+        width: var(--btn-sm);
+        height: var(--btn-sm);
+      }
+
+      .button-play {
+        width: var(--btn-lg);
+        height: var(--btn-lg);
+      }
+
+      .button-reload {
+        background-color: var(--hot);
+        color: #fff;
+        border-color: rgba(69, 68, 67, 0.5);
+      }
+
+      .button-rewind:hover,
+      .button-play:hover,
+      .button-step:hover,
       .button-reload:hover {
-        background-color: rgb(255, 128, 0, 0.9);
+        filter: brightness(1.18);
       }
 
+      .button-rewind:active,
+      .button-play:active,
+      .button-step:active,
       .button-reload:active {
-        background-color: rgb(255, 128, 0);
-        box-shadow:
-          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4),
-          inset 0px 0px 5px 8px rgba(226, 222, 218, 0.4);
+        box-shadow: var(--btn-shadow-pressed);
       }
 
+      .button-rewind:disabled,
+      .button-step:disabled {
+        cursor: not-allowed;
+        filter: none;
+      }
+
+      .rewind,
+      .step,
       .reload {
-        width: 24px;
-        height: 24px;
+        width: 70%;
+        height: 70%;
       }
 
-      .reload path {
-        color: #fff;
+      .play,
+      .pause {
+        width: 82%;
+        height: 82%;
       }
 
-      .navbar-bottom-box {
-        position: absolute;
-        background-color: black;
-        bottom: 0;
-        width: 100vw;
-        height: calc(100vh - 92%);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 5px 15px 5px 15px;
-      }
-
-      .navbar-bottom-box p {
-        margin: 0;
-        color: #fff;
-        text-decoration: none;
-        font-size: 20px;
-      }
-
-      .navbar-bottom-box a {
-        color: #fff;
-        text-decoration: none;
-        font-size: 20px;
-      }
-
-      .navbar-bottom-options ul {
-        display: flex;
-        justify-content: space-between;
-        list-style: none;
-        margin: 0;
-      }
-
-      .navbar-bottom-options li + li {
-        margin-left: 15px;
-      }
-
-      /* Inputs de Temperatura */
-      .cold-temperature {
-        bottom: 380px;
-      }
-
-      .hot-temperature {
-        bottom: 80px;
-      }
-
+      /* Entradas de temperatura (fonte fria / fonte quente) */
       .cold-temperature,
       .hot-temperature {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+      }
+
+      /* Telas largas: ficam à esquerda do motor, na altura da placa fria e da placa quente.
+         As porcentagens são posições no desenho do Canvas (placa fria ≈ 64 %, placa quente ≈ 89 %
+         da altura); 18px é a altura do rótulo e --arrow-size a metade do valor. */
+      .temperature-controls .cold-temperature,
+      .temperature-controls .hot-temperature {
         position: absolute;
-        left: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: end;
+        right: 0;
       }
 
-      .cold-temperature button,
-      .hot-temperature button {
-        width: 14px;
-        height: 14px;
-        background-color: transparent;
-        border: transparent;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+      .temperature-controls .cold-temperature {
+        top: calc(63.7% - 18px - var(--arrow-size));
       }
 
-      .cold-temperature-buttons button + button,
-      .hot-temperature-buttons button + button {
-        margin-top: 0px;
+      .temperature-controls .hot-temperature {
+        top: calc(89.3% - 18px - var(--arrow-size));
       }
 
       .text-input-cold-temperature,
       .text-input-hot-temperature {
-        width: 120px;
+        width: var(--temp-w);
       }
 
-      .text-input-cold-temperature p,
-      .text-input-hot-temperature p {
-        margin: 0;
-        color: #000;
+      .text-input-cold-temperature p:first-child,
+      .text-input-hot-temperature p:first-child {
         font-size: 14px;
-        font-weight: bolder;
+        font-weight: 700;
+        line-height: 18px;
+        color: var(--ink);
+        white-space: nowrap;
       }
 
       .cold-source,
       .hot-source {
-        border: 1px solid #000;
-        margin: 0;
-        padding: 2px;
+        height: calc(2 * var(--arrow-size));
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
+        border: 1px solid rgba(0, 0, 0, 0.7);
+        border-radius: var(--radius-sm);
+        color: #000;
+        font-size: 14px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
       }
 
       .cold-source {
-        background-color: rgb(30, 144, 255);
+        background-color: var(--cold);
       }
 
       .hot-source {
-        background-color: rgb(255, 111, 0);
+        background-color: var(--hot);
+      }
+
+      .cold-temperature button,
+      .hot-temperature button {
+        width: var(--arrow-size);
+        height: var(--arrow-size);
+        background-color: transparent;
+        border: transparent;
+        border-radius: 3px;
+        color: var(--ink);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .cold-temperature-buttons,
+      .hot-temperature-buttons {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .cold-temperature button:hover:not(:disabled),
+      .hot-temperature button:hover:not(:disabled) {
+        color: #0b5ed7;
+      }
+
+      .cold-temperature button:disabled,
+      .hot-temperature button:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
       }
 
       .cold-up,
@@ -411,37 +454,466 @@
         height: auto;
       }
 
-      .input-none:focus {
-        box-shadow: 0 0 0 0 !important;
+      /* Leituras de trabalho: três colunas (rótulo | valor | unidade) alinhadas entre as duas linhas */
+      .work-boxes {
+        grid-column: 3;
+        grid-row: 1;
+        justify-self: start;
+        display: grid;
+        grid-template-columns: auto auto auto;
+        align-items: center;
+        column-gap: 6px;
+        row-gap: 6px;
       }
 
       .work-box {
-        position: absolute;
-        display: flex;
-        right: calc(100vh - (100vh / 2));
-        bottom: 80px;
-        /* width: 350px; */
-        height: auto;
-        color: #000;
-        font-weight: bolder;
-      }
-
-      .work-box-model {
-        bottom: 122px;
+        display: contents;
       }
 
       .work-box p {
-        margin: 0;
-        padding: 5px;
+        font-weight: 700;
+        color: var(--ink);
+        white-space: nowrap;
       }
 
-      /* .work-box p + p {
-            margin-left: 10px;
-        } */
+      .work-box p:first-child {
+        text-align: right;
+      }
 
       .work {
-        border: 1px solid #000;
-        background-color: rgba(202, 195, 202, 1);
+        min-width: 5.4em;
+        padding: 4px 8px;
+        text-align: center;
+        border: 1px solid rgba(0, 0, 0, 0.7);
+        border-radius: var(--radius-sm);
+        background-color: rgb(226, 224, 232);
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* ------------------ 7. Barra inferior ----------------- */
+      .navbar-bottom-box {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+        min-height: var(--footer-h);
+        padding: 5px 15px;
+        background-color: var(--nav-bg);
+      }
+
+      /* Filete frio → quente no topo da barra */
+      .navbar-bottom-box::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--cold), var(--hot));
+        opacity: 0.85;
+      }
+
+      .navbar-bottom-box p,
+      .navbar-bottom-box a,
+      .materials-toggle {
+        color: #fff;
+        text-decoration: none;
+        font-size: clamp(14px, 1.4vw, 20px);
+      }
+
+      .navbar-bottom-options > ul {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px 15px;
+        list-style: none;
+      }
+
+      .navbar-bottom-options > ul > li {
+        position: relative;
+      }
+
+      .navbar-bottom-options > ul > li > a {
+        display: inline-block;
+        padding: 6px 2px;
+        border-bottom: 2px solid transparent;
+      }
+
+      .navbar-bottom-options > ul > li > a:hover {
+        border-bottom-color: var(--hot);
+      }
+
+      /* Menu "Materiais" (abre para cima; usa o dropdown do Bootstrap já carregado) */
+      .materials-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        font-family: inherit;
+        line-height: 1.3;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 999px;
+      }
+
+      .materials-toggle:hover,
+      .materials-toggle.show {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.55);
+      }
+
+      .materials-toggle .mi-icon {
+        width: 1.1em;
+        height: 1.1em;
+        flex: 0 0 auto;
+      }
+
+      .dropdown-menu.materials-menu {
+        --bs-dropdown-min-width: 15rem;
+        --bs-dropdown-padding-y: 6px;
+        --bs-dropdown-border-color: var(--line);
+        --bs-dropdown-border-radius: 10px;
+        --bs-dropdown-box-shadow: 0 8px 24px rgba(16, 24, 40, 0.18);
+        --bs-dropdown-link-active-bg: rgba(30, 144, 255, 0.12);
+        font-family: var(--font-sans);
+        max-width: min(20rem, calc(100vw - 24px));
+      }
+
+      .materials-menu .dropdown-header {
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+      }
+
+      .dropdown-menu .materials-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--ink);
+        text-decoration: none;
+      }
+
+      .materials-item:hover,
+      .materials-item:focus-visible {
+        background: rgba(30, 144, 255, 0.1);
+        color: var(--ink);
+      }
+
+      .materials-item .mi-icon {
+        width: 20px;
+        height: 20px;
+        flex: 0 0 auto;
+        color: var(--cold);
+      }
+
+      .materials-item .mi-ext {
+        width: 16px;
+        height: 16px;
+        margin-left: auto;
+        flex: 0 0 auto;
+        color: var(--ink-soft);
+      }
+
+      /* ------------------ 8. Breakpoints ----------------- */
+
+      /* ≤ 1200px: notebooks pequenos e janelas reduzidas — só espaçamentos e tamanhos */
+      @media (max-width: 1200px) {
+        :root {
+          --pad: 12px;
+          --temp-w: 108px;
+          --eng-cap: 560px;
+          --chart-cap: 600px;
+        }
+
+        .panels {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .text-input-cold-temperature p:first-child,
+        .text-input-hot-temperature p:first-child {
+          font-size: 13px;
+        }
+
+        .engine-panel,
+        .chart-panel {
+          padding: 8px;
+        }
+      }
+
+      /* ≤ 1000px: a página passa a rolar; as temperaturas saem do lado do motor e
+         os controles ocupam mais de uma linha */
+      @media (max-width: 1000px) {
+        :root {
+          --footer-h: 52px;
+          --temp-w: 120px;
+          --chart-ratio: 4 / 3;
+        }
+
+        .container-box {
+          height: auto;
+          min-height: 100vh;
+          min-height: 100dvh;
+        }
+
+        .stage {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .engine-panel,
+        .chart-panel {
+          container-type: normal;
+          padding: 10px;
+        }
+
+        .engine-panel {
+          display: block;
+        }
+
+        .engine-stage {
+          --eng-w: min(100%, var(--eng-cap));
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .engine-stage canvas {
+          width: var(--eng-w);
+          height: auto;
+          aspect-ratio: 560 / 440;
+        }
+
+        .temperature-controls {
+          order: 2;
+          position: static;
+          flex: none;
+          width: 100%;
+          height: auto;
+          display: flex;
+          justify-content: center;
+          flex-wrap: wrap;
+          gap: 12px 28px;
+        }
+
+        .temperature-controls .cold-temperature,
+        .temperature-controls .hot-temperature {
+          position: static;
+        }
+
+        #circleStirling {
+          width: min(100%, var(--chart-cap));
+        }
+
+        .controls {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          align-items: center;
+          gap: 14px 28px;
+          padding: 14px var(--pad) 16px;
+        }
+
+        .button-box {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 20px;
+          width: 100%;
+        }
+
+        .button-box-principal,
+        .button-box-reload {
+          grid-column: auto;
+        }
+
+        .work-boxes {
+          justify-self: auto;
+        }
+      }
+
+      /* 701–1000px em paisagem: motor e gráfico lado a lado; gráfico mais alto para caber a legenda
+         e play + leituras de trabalho na mesma linha, quando couberem */
+      @media (min-width: 701px) and (max-width: 1000px) and (orientation: landscape) {
+        :root {
+          --chart-ratio: 1 / 1;
+        }
+
+        .button-box {
+          width: auto;
+        }
+      }
+
+      /* Retrato (tablets em pé) e telas ≤ 700px: uma coluna, na ordem
+         motor → temperaturas → play → gráfico → trabalho */
+      @media (max-width: 1000px) and (orientation: portrait), (max-width: 700px) {
+        .stage {
+          gap: 14px;
+          padding: 12px var(--pad);
+        }
+
+        .panels,
+        .controls {
+          display: contents;
+        }
+
+        .engine-panel {
+          order: 1;
+        }
+
+        .button-box {
+          order: 2;
+        }
+
+        .chart-panel {
+          order: 3;
+        }
+
+        .work-boxes {
+          order: 4;
+          align-self: center;
+        }
+      }
+
+      /* ≤ 700px: celulares — alvos de toque maiores, barra inferior em duas linhas */
+      @media (max-width: 700px) {
+        :root {
+          --btn-sm: 44px;
+          --btn-lg: 64px;
+          --arrow-size: 24px;
+          --temp-w: 132px;
+          --chart-ratio: 4 / 3;
+          --footer-h: 0px;
+        }
+
+        .stage {
+          padding-inline: 10px;
+        }
+
+        .button-box {
+          gap: 18px;
+        }
+
+        .button-box-principal {
+          gap: 14px;
+        }
+
+        .text-input-cold-temperature p:first-child,
+        .text-input-hot-temperature p:first-child {
+          font-size: 13px;
+        }
+
+        .cold-source,
+        .hot-source {
+          font-size: 16px;
+        }
+
+        .work-boxes {
+          font-size: 15px;
+        }
+
+        .navbar-bottom-box {
+          justify-content: center;
+          text-align: center;
+          padding: 8px 12px;
+        }
+
+        .navbar-bottom-box p {
+          flex: 1 1 100%;
+          font-size: 13px;
+          opacity: 0.85;
+        }
+
+        .navbar-bottom-box a,
+        .materials-toggle {
+          font-size: 15px;
+        }
+
+        .navbar-bottom-options > ul {
+          justify-content: center;
+        }
+
+        .navbar-bottom-options > ul > li > a {
+          padding: 10px 4px;
+        }
+      }
+
+      /* ≤ 480px: gráfico mais alto para não espremer a área de plotagem */
+      @media (max-width: 480px) {
+        :root {
+          --chart-ratio: 9 / 10;
+        }
+      }
+
+      /* ≤ 400px: celulares compactos (320 / 360 / 375) */
+      @media (max-width: 400px) {
+        :root {
+          --pad: 8px;
+          --temp-w: 120px;
+        }
+
+        .app-title {
+          font-size: 1.1rem;
+        }
+
+        .stage {
+          padding-inline: 8px;
+        }
+
+        .engine-panel,
+        .chart-panel {
+          padding: 6px;
+        }
+
+        .temperature-controls {
+          gap: 10px 16px;
+        }
+      }
+
+      /* ≤ 360px: as duas entradas de temperatura continuam lado a lado e o gráfico fica mais alto */
+      @media (max-width: 360px) {
+        :root {
+          --temp-w: 108px;
+          --chart-ratio: 5 / 6;
+        }
+
+        .cold-source,
+        .hot-source {
+          font-size: 15px;
+        }
+      }
+
+      /* ------------------ 9. Toque e fallback ----------------- */
+      /* Telas sensíveis ao toque: botões redondos e ▲/▼ maiores em qualquer largura */
+      @media (pointer: coarse) {
+        :root {
+          --arrow-size: 24px;
+          --btn-sm: 44px;
+          --btn-lg: 64px;
+        }
+      }
+
+      /* Navegadores sem container queries (unidades cqw/cqh): o painel usa dimensões simples */
+      @supports not (width: 1cqw) {
+        .engine-panel,
+        .chart-panel {
+          container-type: normal;
+        }
+
+        .engine-stage {
+          --eng-w: min(100%, var(--eng-cap));
+        }
+
+        #circleStirling {
+          width: min(100%, var(--chart-cap));
+        }
       }
     </style>
   </head>
@@ -450,202 +922,387 @@
     <div class="container-box">
       <div class="header">
         <div class="title-menu">
-          <h1 style="margin-bottom: 0; color: black">
-            Motor Stirling LTD (Tipo Gama)
+          <h1 class="app-title">
+            Motor Stirling LTD <span class="title-sub">(Tipo Gama)</span>
           </h1>
         </div>
       </div>
-      <canvas id="canvas"></canvas>
-      <div
-        class="circle"
-        id="circleStirling"
-        style="position: absolute; top: 100px; right: 50px"
-      ></div>
-      <div class="button-box">
-        <div class="button-box-principal">
-          <button
-            type="button"
-            class="button-rewind"
-            id="buttonRewind"
-            style="
-              box-shadow:
-                rgba(226, 222, 218, 0.5) 2px 2px 5px 2px inset,
-                rgba(0, 0, 0, 0.5) -2px -2px 5px 2px inset;
-            "
-            onclick="rewindSimulation()"
-            data-bs-toggle="tooltip"
-            data-bs-trigger="hover"
-            data-bs-placement="top"
-            data-bs-custom-class="custom-tooltip"
-            data-bs-title="Retroceder um passo"
-          >
-            <svg class="rewind" viewBox="0 0 24 24">
-              <path
-                fill="currentColor"
-                d="M6,18V6H8V18H6M9.5,12L18,6V18L9.5,12Z"
-              />
-            </svg>
-          </button>
-          <button
-            type="button"
-            class="button-play"
-            id="buttonPlay"
-            onclick="playSimulation()"
-            data-bs-toggle="tooltip"
-            data-bs-trigger="hover"
-            data-bs-placement="top"
-            data-bs-custom-class="custom-tooltip"
-            data-bs-title="Play"
-          >
-            <svg class="play" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
-            </svg>
-            <svg class="pause" viewBox="0 0 24 24" style="display: none">
-              <path fill="currentColor" d="M6 5h4v14H6zm8 0h4v14h-4z" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            class="button-step"
-            id="buttonStep"
-            style="
-              box-shadow:
-                rgba(226, 222, 218, 0.5) 2px 2px 5px 2px inset,
-                rgba(0, 0, 0, 0.5) -2px -2px 5px 2px inset;
-            "
-            onclick="stepSimulation()"
-            data-bs-toggle="tooltip"
-            data-bs-trigger="hover"
-            data-bs-placement="top"
-            data-bs-custom-class="custom-tooltip"
-            data-bs-title="Avançar um passo"
-          >
-            <svg class="step" viewBox="0 0 20 24">
-              <path
-                fill="currentColor"
-                d="M4,18L12.5,12L4,6V18M13,6H15V18H13V6Z"
-              />
-            </svg>
-          </button>
+
+      <main class="stage">
+        <div class="panels">
+          <section class="engine-panel" aria-label="Animação do motor">
+            <div class="engine-stage">
+              <div class="temperature-controls">
+                <div class="cold-temperature">
+                  <div class="text-input-cold-temperature">
+                    <p>Fonte Fria (K)</p>
+                    <p class="cold-source" id="coldSource">400</p>
+                  </div>
+                  <div class="cold-temperature-buttons">
+                    <button
+                      type="button"
+                      class="cold-temperature-cold"
+                      id="coldTemperatureUpButton"
+                      onclick="coldTemperatureUp()"
+                      aria-label="Aumentar a temperatura da fonte fria"
+                    >
+                      <svg class="cold-up" viewBox="0 0 24 24">
+                        <title>Aumentar 20 K</title>
+                        <path
+                          fill="currentColor"
+                          d="M19,3H5A2,2 0 0,0 3,5V19C3,20.11 3.9,21 5,21H19C20.11,21 21,20.11 21,19V5A2,2 0 0,0 19,3M16.59,15.71L12,11.12L7.41,15.71L6,14.29L12,8.29L18,14.29L16.59,15.71Z"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="cold-temperature-down"
+                      id="coldTemperatureDownButton"
+                      onclick="coldTemperatureDown()"
+                      aria-label="Diminuir a temperatura da fonte fria"
+                    >
+                      <svg class="cold-down" viewBox="0 0 24 24">
+                        <title>Diminuir 20 K</title>
+                        <path
+                          fill="currentColor"
+                          d="M19,3H5A2,2 0 0,0 3,5V19C3,20.11 3.9,21 5,21H19C20.11,21 21,20.11 21,19V5A2,2 0 0,0 19,3M12,15.71L6,9.71L7.41,8.29L12,12.88L16.59,8.29L18,9.71L12,15.71Z"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="hot-temperature">
+                  <div class="text-input-hot-temperature">
+                    <p>Fonte Quente (K)</p>
+                    <p class="hot-source" id="hotSource">660</p>
+                  </div>
+                  <div class="hot-temperature-buttons">
+                    <button
+                      type="submit"
+                      class="hot-temperature-up"
+                      id="hotTemperatureUpButton"
+                      onclick="hotTemperatureUp()"
+                      aria-label="Aumentar a temperatura da fonte quente"
+                    >
+                      <svg class="hot-up" viewBox="0 0 24 24">
+                        <title>Aumentar 20 K</title>
+                        <path
+                          fill="currentColor"
+                          d="M19,3H5A2,2 0 0,0 3,5V19C3,20.11 3.9,21 5,21H19C20.11,21 21,20.11 21,19V5A2,2 0 0,0 19,3M16.59,15.71L12,11.12L7.41,15.71L6,14.29L12,8.29L18,14.29L16.59,15.71Z"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      type="submit"
+                      class="hot-temperature-down"
+                      id="hotTemperatureDownButton"
+                      onclick="hotTemperatureDown()"
+                      aria-label="Diminuir a temperatura da fonte quente"
+                    >
+                      <svg class="hot-down" viewBox="0 0 24 24">
+                        <title>Diminuir 20 K</title>
+                        <path
+                          fill="currentColor"
+                          d="M19,3H5A2,2 0 0,0 3,5V19C3,20.11 3.9,21 5,21H19C20.11,21 21,20.11 21,19V5A2,2 0 0,0 19,3M12,15.71L6,9.71L7.41,8.29L12,12.88L16.59,8.29L18,9.71L12,15.71Z"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <canvas
+                id="canvas"
+                width="1120"
+                height="880"
+                role="img"
+                aria-label="Mecanismo do motor Stirling tipo gama em movimento"
+              ></canvas>
+            </div>
+          </section>
+
+          <section class="chart-panel" aria-label="Diagrama P-V">
+            <div class="circle" id="circleStirling"></div>
+          </section>
         </div>
-        <div class="button-box-reload">
-          <button
-            type="button"
-            class="button-reload"
-            id="buttonReload"
-            onclick="reloadSimulation()"
-            data-bs-toggle="tooltip"
-            data-bs-trigger="hover"
-            data-bs-placement="top"
-            data-bs-custom-class="custom-tooltip"
-            data-bs-title="Resetar"
-          >
-            <svg class="reload" viewBox="0 0 23 24">
-              <path
-                fill="currentColor"
-                d="M2 12C2 16.97 6.03 21 11 21C13.39 21 15.68 20.06 17.4 18.4L15.9 16.9C14.63 18.25 12.86 19 11 19C4.76 19 1.64 11.46 6.05 7.05C10.46 2.64 18 5.77 18 12H15L19 16H19.1L23 12H20C20 7.03 15.97 3 11 3C6.03 3 2 7.03 2 12Z"
-              />
-            </svg>
-          </button>
+
+        <div class="controls">
+          <div class="button-box">
+            <div class="button-box-principal">
+              <button
+                type="button"
+                class="button-rewind"
+                id="buttonRewind"
+                style="
+                  box-shadow:
+                    rgba(226, 222, 218, 0.5) 2px 2px 5px 2px inset,
+                    rgba(0, 0, 0, 0.5) -2px -2px 5px 2px inset;
+                "
+                onclick="rewindSimulation()"
+                aria-label="Retroceder um passo"
+                data-bs-toggle="tooltip"
+                data-bs-trigger="hover"
+                data-bs-placement="top"
+                data-bs-custom-class="custom-tooltip"
+                data-bs-title="Retroceder um passo"
+              >
+                <svg class="rewind" viewBox="0 0 24 24">
+                  <path
+                    fill="currentColor"
+                    d="M6,18V6H8V18H6M9.5,12L18,6V18L9.5,12Z"
+                  />
+                </svg>
+              </button>
+              <button
+                type="button"
+                class="button-play"
+                id="buttonPlay"
+                onclick="playSimulation()"
+                aria-label="Reproduzir ou pausar a simulação"
+                data-bs-toggle="tooltip"
+                data-bs-trigger="hover"
+                data-bs-placement="top"
+                data-bs-custom-class="custom-tooltip"
+                data-bs-title="Play"
+              >
+                <svg class="play" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
+                </svg>
+                <svg class="pause" viewBox="0 0 24 24" style="display: none">
+                  <path fill="currentColor" d="M6 5h4v14H6zm8 0h4v14h-4z" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                class="button-step"
+                id="buttonStep"
+                style="
+                  box-shadow:
+                    rgba(226, 222, 218, 0.5) 2px 2px 5px 2px inset,
+                    rgba(0, 0, 0, 0.5) -2px -2px 5px 2px inset;
+                "
+                onclick="stepSimulation()"
+                aria-label="Avançar um passo"
+                data-bs-toggle="tooltip"
+                data-bs-trigger="hover"
+                data-bs-placement="top"
+                data-bs-custom-class="custom-tooltip"
+                data-bs-title="Avançar um passo"
+              >
+                <svg class="step" viewBox="0 0 20 24">
+                  <path
+                    fill="currentColor"
+                    d="M4,18L12.5,12L4,6V18M13,6H15V18H13V6Z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div class="button-box-reload">
+              <button
+                type="button"
+                class="button-reload"
+                id="buttonReload"
+                onclick="reloadSimulation()"
+                aria-label="Resetar a simulação"
+                data-bs-toggle="tooltip"
+                data-bs-trigger="hover"
+                data-bs-placement="top"
+                data-bs-custom-class="custom-tooltip"
+                data-bs-title="Resetar"
+              >
+                <svg class="reload" viewBox="0 0 23 24">
+                  <path
+                    fill="currentColor"
+                    d="M2 12C2 16.97 6.03 21 11 21C13.39 21 15.68 20.06 17.4 18.4L15.9 16.9C14.63 18.25 12.86 19 11 19C4.76 19 1.64 11.46 6.05 7.05C10.46 2.64 18 5.77 18 12H15L19 16H19.1L23 12H20C20 7.03 15.97 3 11 3C6.03 3 2 7.03 2 12Z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="work-boxes">
+            <div class="work-box work-box-model">
+              <p>W<sub>motor, modelo</sub> =</p>
+              <p class="work" id="workModel"></p>
+              <p>J</p>
+            </div>
+            <div class="work-box">
+              <p>W<sub>ciclo, ideal</sub> =</p>
+              <p class="work" id="work"></p>
+              <p>J</p>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="cold-temperature">
-        <div class="text-input-cold-temperature">
-          <p>Fonte Fria (K)</p>
-          <p class="cold-source" id="coldSource">400</p>
-        </div>
-        <div class="cold-temperature-buttons">
-          <button
-            type="button"
-            class="cold-temperature-cold"
-            id="coldTemperatureUpButton"
-            onclick="coldTemperatureUp()"
-          >
-            <svg class="cold-up" viewBox="0 0 24 24">
-              <title>chevron-up-box</title>
-              <path
-                fill="currentColor"
-                d="M19,3H5A2,2 0 0,0 3,5V19C3,20.11 3.9,21 5,21H19C20.11,21 21,20.11 21,19V5A2,2 0 0,0 19,3M16.59,15.71L12,11.12L7.41,15.71L6,14.29L12,8.29L18,14.29L16.59,15.71Z"
-              />
-            </svg>
-          </button>
-          <button
-            type="button"
-            class="cold-temperature-down"
-            id="coldTemperatureDownButton"
-            onclick="coldTemperatureDown()"
-          >
-            <svg class="cold-down" viewBox="0 0 24 24">
-              <title>chevron-down-box</title>
-              <path
-                fill="currentColor"
-                d="M19,3H5A2,2 0 0,0 3,5V19C3,20.11 3.9,21 5,21H19C20.11,21 21,20.11 21,19V5A2,2 0 0,0 19,3M12,15.71L6,9.71L7.41,8.29L12,12.88L16.59,8.29L18,9.71L12,15.71Z"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div class="hot-temperature">
-        <div class="text-input-hot-temperature">
-          <p>Fonte Quente (K)</p>
-          <p class="hot-source" id="hotSource">660</p>
-        </div>
-        <div class="hot-temperature-buttons">
-          <button
-            type="submit"
-            class="hot-temperature-up"
-            id="hotTemperatureUpButton"
-            onclick="hotTemperatureUp()"
-          >
-            <svg class="hot-up" viewBox="0 0 24 24">
-              <title>chevron-up-box</title>
-              <path
-                fill="currentColor"
-                d="M19,3H5A2,2 0 0,0 3,5V19C3,20.11 3.9,21 5,21H19C20.11,21 21,20.11 21,19V5A2,2 0 0,0 19,3M16.59,15.71L12,11.12L7.41,15.71L6,14.29L12,8.29L18,14.29L16.59,15.71Z"
-              />
-            </svg>
-          </button>
-          <button
-            type="submit"
-            class="hot-temperature-down"
-            id="hotTemperatureDownButton"
-            onclick="hotTemperatureDown()"
-          >
-            <svg class="hot-down" viewBox="0 0 24 24">
-              <title>chevron-down-box</title>
-              <path
-                fill="currentColor"
-                d="M19,3H5A2,2 0 0,0 3,5V19C3,20.11 3.9,21 5,21H19C20.11,21 21,20.11 21,19V5A2,2 0 0,0 19,3M12,15.71L6,9.71L7.41,8.29L12,12.88L16.59,8.29L18,9.71L12,15.71Z"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div class="work-box work-box-model">
-        <p>W<sub>motor, modelo</sub> =</p>
-        <p class="work" id="workModel"></p>
-        <p>J</p>
-      </div>
-      <div class="work-box">
-        <p>W<sub>ciclo, ideal</sub> =</p>
-        <p class="work" id="work"></p>
-        <p>J</p>
-      </div>
+      </main>
+
       <!-- <img class="img-ice" id="img-ice" src="./img/gelo3.png" alt="" onclick="imgIce()">
         <img class="img-fire" id="img-fire" src="./img/fogo4.png" alt="" onclick="imgFire()"> -->
-      <div class="navbar-bottom-box">
+      <footer class="navbar-bottom-box">
         <p>Motor Stirling LTD (Tipo Gama)</p>
         <div class="navbar-bottom-options">
           <ul>
-            <li><a href="./01_codigo_TCC_modelo_01.html">Sobre</a></li>
-            <li><a href="./01_codigo_TCC_modelo_02.html">Funcionamento</a></li>
-            <!-- <li><a href="">Gráfico</a></li> -->
+            <!-- Materiais do TCC: menu discreto que abre para cima; os links abrem em nova aba -->
+            <li class="dropdown dropup">
+              <button
+                type="button"
+                class="materials-toggle dropdown-toggle"
+                id="materialsToggle"
+                data-bs-toggle="dropdown"
+                data-bs-auto-close="true"
+                aria-expanded="false"
+                aria-haspopup="true"
+              >
+                <svg class="mi-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M20,18H4V8H20M20,6H12L10,4H4A2,2 0 0,0 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8A2,2 0 0,0 20,6Z"
+                  />
+                </svg>
+                Materiais
+              </button>
+              <ul
+                class="dropdown-menu dropdown-menu-end materials-menu"
+                aria-labelledby="materialsToggle"
+              >
+                <li><h2 class="dropdown-header">Materiais do TCC</h2></li>
+                <li>
+                  <a
+                    class="dropdown-item materials-item"
+                    href="https://drive.google.com/drive/folders/16f-EF2CuUUNinlLxFXpkxChhDH_sWaPY?usp=sharing"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <svg class="mi-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        fill="currentColor"
+                        d="M6,2A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2H6M6,4H13V9H18V20H6V4M8,12V14H16V12H8M8,16V18H13V16H8Z"
+                      />
+                    </svg>
+                    <span>TCC</span>
+                    <svg class="mi-ext" viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        fill="currentColor"
+                        d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"
+                      />
+                    </svg>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item materials-item"
+                    href="https://drive.google.com/drive/folders/16f-EF2CuUUNinlLxFXpkxChhDH_sWaPY?usp=sharing"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <svg class="mi-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        fill="currentColor"
+                        d="M14.6,16.6L19.2,12L14.6,7.4L16,6L22,12L16,18L14.6,16.6M9.4,16.6L4.8,12L9.4,7.4L8,6L2,12L8,18L9.4,16.6Z"
+                      />
+                    </svg>
+                    <span>Código-Fonte</span>
+                    <svg class="mi-ext" viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        fill="currentColor"
+                        d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"
+                      />
+                    </svg>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item materials-item"
+                    href="https://drive.google.com/drive/folders/1fz5U-Ylo_m2I0nJDbRo5dUIZaFAhLww5?usp=sharing"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <svg class="mi-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        fill="currentColor"
+                        d="M22,16V4A2,2 0 0,0 20,2H8A2,2 0 0,0 6,4V16A2,2 0 0,0 8,18H20A2,2 0 0,0 22,16M11,12L13.03,14.71L16,11L20,16H8M2,6V20A2,2 0 0,0 4,22H18V20H4V6"
+                      />
+                    </svg>
+                    <span>Imagens do TCC</span>
+                    <svg class="mi-ext" viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        fill="currentColor"
+                        d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"
+                      />
+                    </svg>
+                  </a>
+                </li>
+                <li>
+                  <!-- O endereço deste link é definido pela constante VIDEO_TUTORIAL_URL, no início do script -->
+                  <a
+                    class="dropdown-item materials-item"
+                    id="videoTutorialLink"
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <svg class="mi-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        fill="currentColor"
+                        d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z"
+                      />
+                    </svg>
+                    <span>Vídeo Tutorial do Simulador</span>
+                    <svg class="mi-ext" viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        fill="currentColor"
+                        d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"
+                      />
+                    </svg>
+                  </a>
+                </li>
+              </ul>
+            </li>
           </ul>
         </div>
-      </div>
+      </footer>
     </div>
 
     <script>
+      /* =====================================================================================
+       * SIMULADOR DO MOTOR STIRLING LTD (TIPO GAMA) — SCRIPT PRINCIPAL
+       * =====================================================================================
+       * FINALIDADE
+       *   Calcular, animar e exibir o ciclo de um motor Stirling tipo gama de baixo diferencial de
+       *   temperatura (LTD): desenho animado do mecanismo (Canvas 2D), diagrama P-V (Highcharts) e
+       *   trabalho por ciclo (ideal e modelo de Schmidt) em função das temperaturas das fontes.
+       *
+       * ORGANIZAÇÃO (na ordem em que aparece no código)
+       *   BLOCO 1  Interface inicial ........ tooltips Bootstrap dos botões.
+       *   BLOCO 1B Estado inicial ........... INITIAL_STATE: fonte única dos valores padrão (inicialização e reload).
+       *   BLOCO 2  Canvas ................... contexto 2D, resolução interna e posição do motor.
+       *   BLOCO 3  Velocidade da animação ... omega (rad/quadro) em função de ΔT = Th − Tc.
+       *   BLOCO 4  Modelo termodinâmico ..... constantes, geometria, volumes, pressões, ciclo ideal,
+       *                                       curva de Schmidt, trabalhos e resumo no console.
+       *   BLOCO 5  Temperaturas (UI) ........ botões ▲/▼ das fontes fria e quente.
+       *   BLOCO 6  Gráfico P-V (Highcharts) . configuração, marcador "Estado Atual", cor do fluido.
+       *   BLOCO 7  Ângulo mestre ............ setCycleAngle() e fases do ciclo.
+       *   BLOCO 8  updateChart() ............ recálculo + atualização do gráfico a cada mudança de Th/Tc.
+       *   BLOCO 9  Animação do Canvas ....... draw(): desenho do motor quadro a quadro.
+       *   BLOCO 10 Controles ................ rewind, play/pause, step e reload.
+       *   BLOCO 11 Inicialização ............ primeiro desenho e reflow do gráfico.
+       *
+       * UNIDADES
+       *   volumes em cm³ · pressões calculadas em Pa e plotadas em kPa · temperaturas em K ·
+       *   quantidade de matéria em mol · ângulos em rad · trabalho em J.
+       *
+       * FLUXO DE DADOS
+       *   botões de temperatura → Tc/Th → updateChart() → recalculateModel() → séries do Highcharts
+       *   e leituras W_ciclo,ideal / W_motor,modelo.
+       *   draw() (a cada quadro) → setCycleAngle() → angle_six_engine → marcador do gráfico
+       *   (updateCyclePointMarker) e pintura do motor, sempre com a MESMA fase.
+       *
+       * LAYOUT RESPONSIVO
+       *   O posicionamento é feito pelo CSS. O Canvas tem resolução interna fixa (BLOCO 2) e é escalado
+       *   por CSS sem distorção; o Highcharts acompanha o seu contêiner por reflow (BLOCO 11).
+       * ===================================================================================== */
+
+      // =====================================================================================
+      // BLOCO 1 — INTERFACE INICIAL
+      // =====================================================================================
       //*********************************
       // Carrega os Tooltipes (Mensagens que Aparecem em Cima do Botão  Retroceder, Play, Avançar e Resetar)
       //*********************************
@@ -654,24 +1311,68 @@
       );
       [...tooltipTriggerList].map((el) => new bootstrap.Tooltip(el));
 
-      //*********************************
-      // Canvas Engine (Padrão para usar o Canvas)
-      //*********************************
+      // Link do item "Vídeo Tutorial do Simulador" do menu Materiais (marcador provisório).
+      // >>> PARA TROCAR O ENDEREÇO DO VÍDEO, ALTERE SOMENTE A CONSTANTE ABAIXO. <<<
+      const VIDEO_TUTORIAL_URL =
+        "https://drive.google.com/drive/folders/1gOEqbCceQGLohwpzx33D1t42AyJPtAXd?usp=sharing";
+      document.getElementById("videoTutorialLink").href = VIDEO_TUTORIAL_URL;
+
+      // =====================================================================================
+      // BLOCO 1B — ESTADO INICIAL (INITIAL_STATE): FONTE ÚNICA DOS VALORES PADRÃO
+      // =====================================================================================
+      // Todo valor que a simulação pode alterar e que precisa voltar ao normal tem aqui o seu valor
+      // inicial. A inicialização (declarações de Tc, Th, Dc, Sc, scale, ângulos, posição do motor…) e a
+      // função reloadSimulation() leem ESTES valores; nenhum deles é repetido em outro lugar. Para
+      // mudar um valor inicial, edite apenas este objeto (o texto "400"/"660" do HTML é só um espaço
+      // reservado que o script sobrescreve ao iniciar).
+      // Não entram aqui: constantes físicas e geométricas fixas (R, P0, T0, De, Se, Vde, Vdc, dx…),
+      // que a simulação nunca altera, e `omega`, derivado de ΔT = Th − Tc por getOmegaForDeltaT().
+      const INITIAL_STATE = {
+        Tc: 400, // K — temperatura da fonte fria
+        Th: 660, // K — temperatura da fonte quente
+        Dc: 7, // cm — diâmetro do cilindro de compressão
+        Sc: 4, // cm — curso do pistão de potência
+        angle: Math.PI, // rad — ângulo mestre; os demais ângulos do mecanismo derivam dele (setCycleAngle)
+        isPlaying: false, // a simulação inicia pausada
+        scale: 0.75, // escala dos desenhos no Canvas
+        hotAmount: 31, // quantidade de linhas da fonte quente
+        hotSpacingBase: 20, // espaçamento das linhas da fonte quente (px lógicos, antes de multiplicar por scale)
+        xCenter: 241, // px lógicos — posição horizontal do motor no Canvas (centraliza o desenho)
+        yCenter: 286, // px lógicos — posição vertical do motor no Canvas
+      };
+
+      // =====================================================================================
+      // BLOCO 2 — CANVAS: CONTEXTO, RESOLUÇÃO INTERNA E POSIÇÃO DO MOTOR
+      // =====================================================================================
+      // O tamanho EXIBIDO do Canvas é definido pelo CSS (cabe no painel mantendo a proporção 560:440,
+      // sem distorção). A resolução INTERNA é fixa: o desenho usa coordenadas lógicas de
+      // ENGINE_LOGICAL_WIDTH × ENGINE_LOGICAL_HEIGHT px e o bitmap tem ENGINE_RENDER_SCALE vezes esse
+      // tamanho (nitidez em telas de alta densidade). Por isso não é necessário tratar resize/orientação:
+      // o navegador reescala o bitmap, e o desenho, os controles e a animação continuam iguais.
+      // ctx.setTransform aplica o fator de resolução uma única vez; save()/restore() em draw() o preservam.
       const canvas = document.getElementById("canvas");
       const ctx = canvas.getContext("2d");
 
-      //*********************************
-      // Obtem e Armazena o Tamanho da Tela do Dispositivo
-      //*********************************
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const ENGINE_LOGICAL_WIDTH = 560; // px lógicos (igual a --eng-w0 do CSS: proporção 560:440)
+      const ENGINE_LOGICAL_HEIGHT = 440; // px lógicos
+      const ENGINE_RENDER_SCALE = 2; // bitmap = 2× o tamanho lógico
+      canvas.width = ENGINE_LOGICAL_WIDTH * ENGINE_RENDER_SCALE;
+      canvas.height = ENGINE_LOGICAL_HEIGHT * ENGINE_RENDER_SCALE;
+      ctx.setTransform(ENGINE_RENDER_SCALE, 0, 0, ENGINE_RENDER_SCALE, 0, 0);
+      // Junção e ponta de linha: draw() termina com "round" e o contexto mantém esse estado entre os
+      // quadros. Definir o mesmo valor aqui faz o PRIMEIRO quadro sair idêntico aos seguintes (e ao
+      // quadro desenhado após o reload); sem isso, só o primeiro usava o padrão "miter"/"butt".
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
 
-      //*********************************
-      // Determina a Posição do Motor na Tela
-      //*********************************
-      let xCenter = canvas.width / 4;
-      let yCenter = canvas.height / 2.2;
+      // Posição do motor em coordenadas lógicas (origem do desenho; todas as peças são relativas
+      // a xCenter/yCenter e multiplicadas por `scale`). Valores que centralizam o motor no Canvas.
+      let xCenter = INITIAL_STATE.xCenter;
+      let yCenter = INITIAL_STATE.yCenter;
 
+      // =====================================================================================
+      // BLOCO 3 — VELOCIDADE DA ANIMAÇÃO (omega) E CONDIÇÕES INICIAIS
+      // =====================================================================================
       //*********************************
       // Variaveis Inciais e Constantes para o Cálculo e Desenho do Ciclo Stirling
       //*********************************
@@ -686,6 +1387,13 @@
       const DELTA_T_SLOW = 100; // K
       const DELTA_T_NORMAL = 900; // K (condição inicial de referência)
       const DELTA_T_FAST = 1800; // K
+      /**
+       * Velocidade angular visual da animação (rad por QUADRO) em função de ΔT = Th − Tc.
+       * Interpolação linear por partes entre as âncoras OMEGA_SLOW (ΔT ≤ 100 K), OMEGA_NORMAL (900 K)
+       * e OMEGA_FAST (ΔT ≥ 1800 K). Não é grandeza física: apenas regra didática.
+       * @param {number} deltaT diferença de temperatura entre as fontes (K)
+       * @returns {number} incremento angular por quadro (rad); OMEGA_NORMAL se a entrada for inválida
+       */
       function getOmegaForDeltaT(deltaT) {
         if (!Number.isFinite(deltaT)) return OMEGA_NORMAL; // entrada inválida: valor padrão
         if (deltaT <= DELTA_T_SLOW) return OMEGA_SLOW;
@@ -706,9 +1414,14 @@
       const T0 = 298.15; // K — temperatura ambiente da condição de carga
       let n = 0; // mol — calculado por calculateInitialCharge() a partir da condição de carga
 
-      let Tc = 400;
-      let Th = 660;
+      let Tc = INITIAL_STATE.Tc;
+      let Th = INITIAL_STATE.Th;
 
+      // =====================================================================================
+      // BLOCO 4 — MODELO TERMODINÂMICO (ciclo ideal e modelo de Schmidt)
+      // =====================================================================================
+      // Ordem de dependência: geometria → volumes varridos → carga (n) → estados e curvas do ciclo ideal
+      // → curva de Schmidt → isotermas de referência → trabalhos. Tudo é refeito por recalculateModel().
       //*********************************
       // MODELO TERMODINÂMICO (incorporado do modelo de referência — Arquivo 1)
       //*********************************
@@ -733,8 +1446,8 @@
       const IDEAL_SAMPLES = 120; // intervalos das isotérmicas do ciclo ideal
 
       // Parâmetros variáveis (valores iniciais do modelo de referência)
-      let Dc = 7; // cm — diâmetro do cilindro de compressão
-      let Sc = 4; // cm — curso do pistão de potência
+      let Dc = INITIAL_STATE.Dc; // cm — diâmetro do cilindro de compressão
+      let Sc = INITIAL_STATE.Sc; // cm — curso do pistão de potência
 
       let Vse, Vsc, V0; // cm³: volumes varridos (expansão, compressão) e volume na condição de carga
       let V1, V2, V3, V4; // cm³: volumes dos 4 estados do ciclo ideal
@@ -748,12 +1461,23 @@
       // isocóricas e o marcador fiquem cortados sobre a borda da área do gráfico.
       const AXIS_MARGIN_FRAC = 0.05;
 
+      /**
+       * Volumes varridos pelos dois êmbolos: Vse = π·De²/4·Se (deslocador, expansão) e
+       * Vsc = π·Dc²/4·Sc (pistão de potência, compressão). Lê De, Se, Dc, Sc (cm); grava Vse, Vsc (cm³).
+       */
       // 3. Geometria e volumes instantâneos
       function calculateSweptVolumes() {
         Vse = ((Math.PI * De ** 2) / 4) * Se;
         Vsc = ((Math.PI * Dc ** 2) / 4) * Sc;
       }
 
+      /**
+       * Volumes instantâneos em função do ângulo θ, com defasagem dx entre os êmbolos:
+       *   Ve = Vse/2·(1 − cos θ) + Vde                             (expansão, quente)
+       *   Vc = Vse/2·(1 + cos θ) + Vsc/2·(1 − cos(θ − dx)) + Vdc   (compressão, fria)
+       * @param {number} theta ângulo de fase (rad)
+       * @returns {{Ve:number, Vc:number, Vtotal:number}} volumes em cm³
+       */
       // Ve: espaço de expansão (quente, a Th). Vc: espaço de compressão (frio, a Tc).
       function calculateVolumes(theta) {
         const Ve = (Vse / 2) * (1 - Math.cos(theta)) + Vde;
@@ -765,18 +1489,33 @@
         return { Ve, Vc, Vtotal: Ve + Vc };
       }
 
+      /**
+       * Condição de carga: V0 = Vtotal(x0) e n = P0·V0/(R·T0) (V0 convertido para m³).
+       * Grava V0 (cm³) e n (mol). Não depende de Th e Tc.
+       */
       // 4. Condição inicial e quantidade de gás: n = P0·V0/(R·T0), com V0 em m³
       function calculateInitialCharge() {
         V0 = calculateVolumes(x0).Vtotal; // cm³
         n = (P0 * V0 * 1e-6) / (R * T0);
       }
 
+      /**
+       * Gás ideal: P = n·R·T/V.
+       * @param {number} temperature temperatura (K)
+       * @param {number} volumeCm3 volume (cm³)
+       * @returns {number} pressão (Pa)
+       */
       // 5. Pressão dos modelos ideal e Schmidt (resultados em Pa)
       function calculatePressureIdeal(temperature, volumeCm3) {
         const volumeM3 = volumeCm3 * 1e-6;
         return (n * R * temperature) / volumeM3;
       }
 
+      /**
+       * Modelo isotérmico de Schmidt: P = n·R / (Ve/Th + Vc/Tc), com Ve e Vc em m³.
+       * @param {number} theta ângulo de fase (rad)
+       * @returns {{pressure:number, volume:number}} pressão (Pa) e volume total (cm³)
+       */
       function calculatePressureSchmidt(theta) {
         const volumes = calculateVolumes(theta);
         const VeM3 = volumes.Ve * 1e-6;
@@ -787,6 +1526,10 @@
         return { pressure, volume: volumes.Vtotal };
       }
 
+      /**
+       * Amostra uma isoterma P = n·R·T/V entre dois volumes, com `points` intervalos.
+       * @returns {Array<[number, number]>} pares [V (cm³), P (kPa)]
+       */
       // 6. Estados e curvas do ciclo ideal
       function generateIsothermalCurve(temperature, startVolume, endVolume, points = IDEAL_SAMPLES) {
         const data = [];
@@ -798,6 +1541,11 @@
         return data;
       }
 
+      /**
+       * Define os 4 estados do ciclo ideal (V1…V4, P1…P4) e gera as séries do gráfico:
+       * dataPh (1→2, isoterma a Th), dataLine23 (2→3, isocórica), dataPc (3→4, isoterma a Tc),
+       * dataLine14 (4→1, isocórica). Depende de Th, Tc, n e dos volumes varridos.
+       */
       // Numeração dos estados (igual à Figura 4 do TCC, Çengel e Boles): 1 -> 2 expansão isotérmica (Th),
       // 2 -> 3 resfriamento isocórico, 3 -> 4 compressão isotérmica (Tc), 4 -> 1 aquecimento isocórico.
       function generateIdealCycle() {
@@ -823,12 +1571,20 @@
         ];
       }
 
+      /**
+       * Faixa visível do eixo de volume do gráfico: [V1 − m, V2 + m], m = AXIS_MARGIN_FRAC·(V2 − V1).
+       * @returns {{min:number, max:number}} limites em cm³ (a margem é apenas visual)
+       */
       // Faixa de volume do eixo horizontal (V1 e V2 são também V_min e V_max da curva de Schmidt)
       function getAxisRange() {
         const margin = (V2 - V1) * AXIS_MARGIN_FRAC;
         return { min: V1 - margin, max: V2 + margin };
       }
 
+      /**
+       * Gera as isotermas cinza de referência (Th e Tc) sobre a faixa visível: dataPh_gray e dataPc_gray
+       * (séries 0 e 1 do gráfico).
+       */
       // Isotermas de referência (cinza) de Th e Tc sobre a faixa visível do eixo de volume
       function generateReferenceIsotherms() {
         const range = getAxisRange();
@@ -836,6 +1592,10 @@
         dataPc_gray = generateIsothermalCurve(Tc, range.min, range.max);
       }
 
+      /**
+       * Curva fechada de Schmidt: P(θ) e V(θ) para θ de x0 a x0 + 2π em SCHMIDT_POINTS intervalos.
+       * @returns {Array<[number, number]>} pares [V (cm³), P (kPa)]; o último ponto repete o primeiro
+       */
       // 7. Curva fechada do ciclo de Schmidt (uma volta: theta de x0 a x0 + 2π; o último ponto repete o primeiro)
       function generateSchmidtCurve(points = SCHMIDT_POINTS) {
         const data = [];
@@ -847,6 +1607,11 @@
         return data;
       }
 
+      /**
+       * Trabalho líquido do ciclo ideal (J): W = W12 + W34 (as isocóricas não realizam trabalho).
+       * Grava w12 (expansão a Th) e w34 (compressão a Tc).
+       * @returns {number} trabalho por ciclo (J)
+       */
       // 8. Trabalhos (J)
       // Ideal: fórmula fechada das duas isotérmicas (as isocóricas não realizam trabalho),
       //   W = n·R·Th·ln(V2/V1) + n·R·Tc·ln(V4/V3).
@@ -857,6 +1622,11 @@
         return w12 + w34;
       }
 
+      /**
+       * Trabalho do motor no modelo de Schmidt: ∮ P dV pela regra do trapézio sobre a curva fechada.
+       * @param {Array<[number, number]>} data pares [V (cm³), P (kPa)]
+       * @returns {number} trabalho por ciclo (J); positivo = percurso horário no diagrama P-V
+       */
       // Motor (modelo de Schmidt): ∮ P dV pela regra do trapézio sobre a curva fechada.
       // V em cm³ e P em kPa: 1 kPa·cm³ = 10³ Pa · 10⁻⁶ m³ = 10⁻³ J. Positivo = percurso horário no P-V.
       function calculateSchmidtWork(data) {
@@ -867,6 +1637,10 @@
         return W * 1e-3;
       }
 
+      /**
+       * Recalcula todo o modelo na ordem de dependência (volumes varridos → carga n → ciclo ideal →
+       * curva de Schmidt → isotermas → trabalhos). Chamada na inicialização e a cada mudança de Th/Tc.
+       */
       // 9. Recálculo completo (n, ciclo ideal, curva de Schmidt, isotermas e trabalhos).
       // Depende de Th e Tc, por isso é refeito sempre que uma temperatura muda.
       function recalculateModel() {
@@ -879,6 +1653,11 @@
         cycleWorkModel = calculateSchmidtWork(dataSchmidt);
       }
 
+      /**
+       * Estado do gás no ângulo θ pelo modelo de Schmidt, com T efetiva = P·V/(n·R).
+       * Disponível para análise; o marcador do gráfico usa calculateIdealCycleState().
+       * @returns {{theta:number, V:number, P:number, T:number}} V (cm³), P (kPa), T (K)
+       */
       // Estado do gás de trabalho em theta, usado pelo marcador do gráfico e pela coloração térmica.
       // V em cm³, P em kPa (absoluta), T em K (temperatura efetiva T = P·V/(n·R), com Tc <= T <= Th).
       function calculateThermodynamicState(theta) {
@@ -891,6 +1670,10 @@
         };
       }
 
+      /**
+       * COMUNICAÇÃO COM A UI: escreve W_ciclo,ideal (#work) e W_motor,modelo (#workModel), em J, com
+       * WORK_DECIMALS casas decimais. Chamada após cada recálculo do modelo.
+       */
       // Trabalhos exibidos na interface (J). O gás do modelo é pequeno (~10⁻⁴ mol, ~9 cm³),
       // então os trabalhos são da ordem de 10⁻² J; por isso 4 casas decimais.
       const WORK_DECIMALS = 4;
@@ -900,6 +1683,10 @@
           cycleWorkModel.toFixed(WORK_DECIMALS);
       }
 
+      /**
+       * Escreve no console um resumo agrupado (geometria, volumes, parâmetros, pressões e trabalhos)
+       * para conferência e depuração. Apenas lê as variáveis do modelo; não altera estado.
+       */
       // Resumo dos cálculos no console do navegador, agrupado por categoria.
       function logModelSummary() {
         const kPa = (Pa) => Number((Pa / 1000).toFixed(3));
@@ -962,21 +1749,37 @@
         console.groupEnd();
       }
 
+      // INICIALIZAÇÃO DO MODELO: velocidade inicial coerente com ΔT, primeiro cálculo completo,
+      // leituras de trabalho na interface e resumo no console. Deve ocorrer antes de criar o gráfico,
+      // que usa dataPh_gray, dataPc_gray, dataPh, dataPc, dataLine14, dataLine23 e dataSchmidt.
       omega = getOmegaForDeltaT(Th - Tc); // velocidade inicial coerente com ΔT inicial
 
       recalculateModel();
       updateWorkDisplay();
       logModelSummary();
 
+      // =====================================================================================
+      // BLOCO 5 — TEMPERATURAS DAS FONTES (UI)
+      // =====================================================================================
       //*********************************
       // Variáveis e Funções para Atualizar o Valor da Temperatura
       //*********************************
       let valueTemperatureCold = document.getElementById("coldSource");
       let valueTemperatureHot = document.getElementById("hotSource");
+      // Os campos exibem os valores de INITIAL_STATE (o texto do HTML é apenas um espaço reservado)
+      valueTemperatureCold.textContent = INITIAL_STATE.Tc;
+      valueTemperatureHot.textContent = INITIAL_STATE.Th;
 
       //*********************************
       // Funções Responsáveis por Atualizar em Tempo Real o valor Fonte Quente e Fonte Fria
       //*********************************
+      /**
+       * Botões ▲/▼ das fontes, em passos de 20 K. Cada função: (1) toca o efeito sonoro de clique;
+       * (2) soma ou subtrai 20 K do valor exibido, respeitando os limites — Tc: 20 a 440 K,
+       * Th: 500 a 3000 K; (3) atualiza Tc/Th a partir do texto do elemento (#coldSource / #hotSource);
+       * (4) chama updateChart() para recalcular o modelo e atualizar o gráfico.
+       * Os botões ficam desabilitados durante a animação (ver playSimulation).
+       */
       function coldTemperatureUp() {
         let audioButton = new Audio("./effect/click-369586.mp3");
         audioButton.volume = 0.1;
@@ -1033,6 +1836,22 @@
         updateChart();
       }
 
+      // =====================================================================================
+      // BLOCO 6 — GRÁFICO P-V (HIGHCHARTS)
+      // =====================================================================================
+      /**
+       * Diagrama P-V. Séries, na ordem do array "series":
+       *   0 isoterma de referência Th (cinza)   | 1 isoterma de referência Tc (cinza)
+       *   2 expansão isotérmica (vermelha)      | 3 compressão isotérmica (azul)
+       *   4 aquecimento isocórico (preta)       | 5 resfriamento isocórico (roxa)
+       *   6 "Estado Atual" (marcador, scatter)  | 7 curva de Schmidt (verde)
+       * Eixos: volume (cm³) em x e pressão (kPa) em y. Zoom/pan por arraste (xy).
+       * O tamanho acompanha o contêiner #circleStirling (definido pelo CSS); "responsive.rules" reduz
+       * fontes e legenda quando o contêiner é estreito. Fonte única do gráfico: CHART_FONT_FAMILY.
+       */
+      // Mesma pilha tipográfica do CSS (--font-sans), para o gráfico combinar com o restante da interface.
+      const CHART_FONT_FAMILY =
+        '"Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
       //*********************************
       // Gráfico que Mostra o Ciclo Stirling de Forma Simples
       //*********************************
@@ -1044,7 +1863,54 @@
           panning: {
             enabled: true,
             type: "xy",
+            // Em telas de toque, um dedo rola a página (em vez de ser capturado pelo gráfico);
+            // zoom/pan continuam disponíveis com o mouse e com dois dedos.
+            followTouchMove: false,
           },
+          style: { fontFamily: CHART_FONT_FAMILY },
+        },
+
+        // Responsividade: as regras usam a LARGURA DO CONTÊINER do gráfico (não da janela).
+        responsive: {
+          rules: [
+            {
+              condition: { maxWidth: 520 },
+              chartOptions: {
+                title: { style: { fontSize: "15px" } },
+                xAxis: {
+                  labels: { style: { fontSize: "11px" } },
+                  title: { style: { fontSize: "12px" } },
+                },
+                yAxis: {
+                  labels: { style: { fontSize: "11px" } },
+                  title: { style: { fontSize: "12px" } },
+                },
+                legend: { itemStyle: { fontSize: "11px" }, itemDistance: 12, itemWidth: 180 },
+              },
+            },
+            {
+              condition: { maxWidth: 400 },
+              chartOptions: {
+                title: { style: { fontSize: "14px" } },
+                xAxis: {
+                  labels: { style: { fontSize: "10px" } },
+                  title: { style: { fontSize: "11px" } },
+                },
+                yAxis: {
+                  labels: { style: { fontSize: "10px" } },
+                  title: { style: { fontSize: "11px" } },
+                },
+                legend: { itemStyle: { fontSize: "10px" }, itemDistance: 8, itemWidth: 145 },
+              },
+            },
+            {
+              // contêineres muito estreitos (≈ 320 px): um item de legenda por linha, sem largura fixa
+              condition: { maxWidth: 330 },
+              chartOptions: {
+                legend: { itemWidth: null },
+              },
+            },
+          ],
         },
 
         tooltip: {
@@ -1066,7 +1932,7 @@
             color: "black",
             fontSize: "18px",
             fontWeight: "normal",
-            fontFamily: "sans-serif",
+            fontFamily: CHART_FONT_FAMILY,
           },
         },
         xAxis: {
@@ -1074,7 +1940,7 @@
             style: {
               color: "black",
               fontSize: "14px",
-              fontFamily: "sans-serif",
+              fontFamily: CHART_FONT_FAMILY,
             },
           },
           title: {
@@ -1083,7 +1949,7 @@
               color: "black",
               fontSize: "16px",
               fontWeight: "normal",
-              fontFamily: "sans-serif",
+              fontFamily: CHART_FONT_FAMILY,
             },
           },
           gridLineWidth: 1,
@@ -1102,7 +1968,7 @@
             style: {
               color: "black",
               fontSize: "14px",
-              fontFamily: "sans-serif",
+              fontFamily: CHART_FONT_FAMILY,
             },
           },
           title: {
@@ -1111,7 +1977,7 @@
               color: "black",
               fontSize: "16px",
               fontWeight: "normal",
-              fontFamily: "sans-serif",
+              fontFamily: CHART_FONT_FAMILY,
             },
           },
           gridLineWidth: 1,
@@ -1256,6 +2122,7 @@
         ],
       });
 
+      // ---- Marcador "Estado Atual" e ciclo ideal: índices das séries e funções de interpolação ----
       // SINCRONIZAÇÃO GRÁFICO x MOTOR: o motor e o gráfico compartilham a MESMA fase `angle_six_engine`
       // (ângulo mestre; `angle` e os demais ângulos são derivados dele por setCycleAngle()).
       // Em cada quadro: (1) o ângulo é atualizado em draw(); (2) calculateIdealCycleState(angle_six_engine)
@@ -1270,6 +2137,13 @@
       // Posição [V, P] a uma fração f (0 a 1) ao longo de uma polilinha de pontos [V, P]. Usa os próprios
       // pontos plotados (dataPh, dataPc, dataLine23, dataLine14), com interpolação linear entre vizinhos:
       // o resultado fica exatamente sobre o segmento desenhado.
+      /**
+       * Ponto [V, P] na fração f (0 a 1) de uma polilinha, por interpolação linear entre vizinhos;
+       * o resultado cai exatamente sobre o segmento desenhado.
+       * @param {Array<[number, number]>} data pontos [V (cm³), P (kPa)]
+       * @param {number} f fração do percurso (limitada a [0, 1])
+       * @returns {[number, number]} [V, P]
+       */
       function pointOnPolyline(data, f) {
         const x = Math.min(1, Math.max(0, f)) * (data.length - 1);
         const i = Math.min(Math.floor(x), data.length - 2);
@@ -1288,6 +2162,12 @@
       //   π/2  -> π:    aquecimento isocórico,    dataLine14 (estado 4 -> 1)
       // A fração f varia linearmente com θ em cada fase; nas junções f = 1 de uma fase e f = 0 da seguinte
       // coincidem no mesmo estado, então não há saltos.
+      /**
+       * Estado [V, P] do ponto atual sobre o CICLO IDEAL em função de θ: cada quarto de volta percorre
+       * uma das quatro curvas (dataPc, dataLine14, dataPh, dataLine23) com fração linear em θ.
+       * @param {number} theta ângulo de fase (rad), normalizado internamente para [0, 2π)
+       * @returns {{V:number, P:number}} volume (cm³) e pressão (kPa)
+       */
       function calculateIdealCycleState(theta) {
         const t = normalizeAngle(theta);
         const quarter = Math.PI / 2;
@@ -1310,6 +2190,10 @@
       }
 
       // Atualiza o marcador "Estado Atual" sobre as curvas ideais, a partir de angle_six_engine (mesmo ângulo do desenho).
+      /**
+       * ATUALIZAÇÃO DO HIGHCHARTS: move o marcador "Estado Atual" (série 6) para o estado ideal
+       * correspondente a angle_six_engine (+ MARKER_PHASE_OFFSET). Chamada a cada quadro de draw().
+       */
       function updateCyclePointMarker() {
         const state = calculateIdealCycleState(angle_six_engine + MARKER_PHASE_OFFSET);
         chart.series[CYCLE_POINT_SERIES_INDEX].setData([[state.V, state.P]], true, false);
@@ -1329,6 +2213,12 @@
       //   vermelho -> clareia -> azul  (π -> 3π/2 -> 2π/0)  e  azul -> clareia -> vermelho  (0 -> π/2 -> π)
       // A intensidade da cor segue smoothstep(|−cos θ|): derivada nula nos extremos (cor sólida) e no
       // ponto claro, então não há "quina" nem salto, nos dois sentidos de rotação (play/rewind).
+      /**
+       * Cor da área interna do motor (ilustrativa), apenas em função de θ: vermelho sólido em π,
+       * azul sólido em 0 e tom claro em π/2 e 3π/2 (smoothstep, sem saltos nos dois sentidos).
+       * @param {number} theta ângulo mestre (rad)
+       * @returns {string} cor CSS "rgb(r, g, b)"
+       */
       function getFluidColor(theta) {
         const u = -Math.cos(theta); // +1: vermelho sólido | 0: claro (π/2, 3π/2) | −1: azul sólido
         const k = Math.abs(u); // 0 (claro) ... 1 (cor sólida)
@@ -1338,6 +2228,9 @@
         return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
       }
 
+      // =====================================================================================
+      // BLOCO 7 — ÂNGULO MESTRE E FASES DO CICLO
+      // =====================================================================================
       // ===================================================================================
       // ÂNGULO MESTRE: angle_six_engine determina o ponto do gráfico e todas as peças do motor.
       //   π    -> 3π/2: expansão isotérmica     | 3π/2 -> 2π (0): resfriamento isocórico
@@ -1345,9 +2238,20 @@
       // As defasagens das demais peças são as mesmas das condições iniciais originais.
       // ===================================================================================
       const TWO_PI = Math.PI * 2;
+      /**
+       * Reduz um ângulo ao intervalo [0, 2π), inclusive para valores negativos (rewind).
+       * @param {number} a ângulo (rad)
+       * @returns {number} ângulo normalizado (rad)
+       */
       function normalizeAngle(a) {
         return ((a % TWO_PI) + TWO_PI) % TWO_PI; // sempre em [0, 2π), inclusive ao retroceder
       }
+      /**
+       * Define o ângulo mestre (angle_six_engine) e deriva os demais, com as defasagens do mecanismo:
+       * angle (volante) = θ; angle_one_engine e angle_five_engine = θ + π/2 (deslocador e sua manivela);
+       * angle_two_engine = θ − π/2 (pistão de potência). Única porta de entrada para mudar a fase.
+       * @param {number} theta novo ângulo mestre (rad)
+       */
       function setCycleAngle(theta) {
         angle_six_engine = normalizeAngle(theta);
         angle = angle_six_engine;
@@ -1355,6 +2259,11 @@
         angle_two_engine = normalizeAngle(angle_six_engine - Math.PI / 2);
         angle_five_engine = normalizeAngle(angle_six_engine + Math.PI / 2);
       }
+      /**
+       * Nome da fase do ciclo para um ângulo θ. Não é chamada pela interface atual; fica disponível
+       * para rótulos ou depuração.
+       * @returns {string} "Expansão isotérmica" | "Resfriamento isocórico" | "Compressão isotérmica" | "Aquecimento isocórico"
+       */
       function getCyclePhase(theta) {
         const t = normalizeAngle(theta);
         if (t >= Math.PI && t < 1.5 * Math.PI) return "Expansão isotérmica";
@@ -1363,9 +2272,52 @@
         return "Aquecimento isocórico";
       }
 
+      // =====================================================================================
+      // BLOCO 8 — ATUALIZAÇÃO DO MODELO E DO GRÁFICO
+      // =====================================================================================
       //*********************************
       // Função que Atualiza os Cálculos em Tempo Real a Cada Modificação e Consequentemente o Gráfico
       //*********************************
+      /**
+       * Remove do gráfico o que o usuário alterou por interação e que updateChart() não desfaz: o
+       * botão "Reset zoom" e as séries ocultas pelo clique na legenda. Usada pelo reload.
+       */
+      function resetChartView() {
+        // Remove só o botão "Reset zoom" (chart.zoomOut() é evitado: ele não basta para o passo abaixo).
+        if (chart.resetZoomButton) chart.resetZoomButton = chart.resetZoomButton.destroy();
+        chart.series.forEach((serie) => {
+          if (!serie.visible) serie.setVisible(true, false);
+        });
+        // Desfaz o zoom/pan e redesenha ANTES de updateChart(): com o zoom ativo o Highcharts recorta os
+        // pontos de cada série (série "cropped"), e o setData() de updateChart() então tenta atualizar
+        // pontos já descartados (TypeError interno em Point.update). Redesenhado em faixa completa,
+        // a série volta a ter todos os pontos e o setData() funciona como na simulação normal.
+        chart.xAxis[0].setExtremes(null, null, false);
+        chart.yAxis[0].setExtremes(null, null, false);
+        // Esvazia todas as séries: updateChart() e updateCyclePointMarker() as preenchem de novo com os
+        // dados do estado inicial, sem reaproveitar nenhum ponto da simulação anterior (o setData do
+        // Highcharts reaproveita pontos de mesmo x, e com a ordem dos pontos invertida deixaria valores antigos).
+        chart.series.forEach((serie) => serie.setData([], false));
+        chart.redraw(false);
+      }
+
+      /**
+       * Devolve os eixos ao ajuste do estado inicial: sem extremos definidos pelo usuário, o eixo x usa
+       * a faixa configurada na criação do gráfico (getAxisRange() da condição inicial) e o eixo y volta
+       * ao ajuste automático (updateChart() fixa o máximo de y em P1 + 50 kPa). Só deve ser chamada com
+       * o modelo no estado inicial, como faz reloadSimulation().
+       */
+      function resetChartAxes() {
+        chart.xAxis[0].setExtremes(null, null, false);
+        chart.yAxis[0].setExtremes(null, null, true);
+      }
+
+      /**
+       * Chamada quando Th ou Tc mudam (botões de temperatura e reload): (1) recalcula o modelo e as
+       * leituras de trabalho; (2) atualiza omega pela nova ΔT; (3) ajusta os extremos dos eixos;
+       * (4) substitui os dados das séries 0–5 e 7 sem redesenhar e renomeia as isotermas cinza;
+       * (5) redesenha uma única vez, reposiciona o marcador e escreve o resumo no console.
+       */
       function updateChart() {
         // Th/Tc mudaram: recalcula n, ciclo ideal, curva de Schmidt, isotermas e trabalhos
         recalculateModel();
@@ -1393,29 +2345,44 @@
         logModelSummary();
       }
 
+      // =====================================================================================
+      // BLOCO 9 — ANIMAÇÃO DO CANVAS
+      // =====================================================================================
+      // Estado da animação: isPlaying (play/pause), animation (id do requestAnimationFrame), os ângulos
+      // do mecanismo (derivados de angle_six_engine por setCycleAngle) e a escala dos desenhos.
       //*********************************
       // Variáveis Inciais Referentes ao Motor Stirling (Omega, Angulos Inciais, Escala e ect)
       //*********************************
-      let isPlaying = false; // controla play/pause
+      let isPlaying = INITIAL_STATE.isPlaying; // controla play/pause
       let animation; // guarda o requestAnimationFrame atual
       // let omega = 0.05; // Lento --> 0.01 | Normal --> 0.05 | Rápido --> 0.09
       // Fase inicial SOMENTE do marcador "Estado Atual" do gráfico P-V: meio da curva vermelha (π a 3π/2).
       // O motor e os ângulos (angle, angle_one/two/five/six_engine) continuam iniciando em π.
       const MARKER_START_ANGLE = (5 * Math.PI) / 4;
       const MARKER_PHASE_OFFSET = MARKER_START_ANGLE - Math.PI; // π/4, aplicado apenas ao marcador
-      let angle = Math.PI;
-      let angle_one_engine = (3 * Math.PI) / 2; // (3 * Math.PI) / 2 --> Máximo || Math.PI / 2 --> Mínimo
-      let angle_two_engine = Math.PI / 2;
-      let angle_five_engine = (3 * Math.PI) / 2;
-      let angle_six_engine = Math.PI;
-      let scale = 0.75; // Escala dos Desenhos em Geral
-      let hotAmount = 31; // Quantidade de Linhas da Fonte Quente
-      let hotSpacing = 20 * scale; // Espaçamento das Linhas da Fonte Quente
+      // Ângulos do mecanismo: todos derivam do ângulo mestre por setCycleAngle(), a mesma função usada
+      // pelo reload (π → deslocador em 3π/2, pistão de potência em π/2).
+      let angle, angle_one_engine, angle_two_engine, angle_five_engine, angle_six_engine;
+      setCycleAngle(INITIAL_STATE.angle);
+      let scale = INITIAL_STATE.scale; // Escala dos Desenhos em Geral
+      let hotAmount = INITIAL_STATE.hotAmount; // Quantidade de Linhas da Fonte Quente
+      let hotSpacing = INITIAL_STATE.hotSpacingBase * scale; // Espaçamento das Linhas da Fonte Quente
 
       //*********************************
       // Desenho e Animação do Motor
       //*********************************
 
+      /**
+       * Um quadro da animação (executado por requestAnimationFrame enquanto isPlaying é verdadeiro).
+       * Sequência: (1) limpa o Canvas; (2) se estiver animando, avança o ângulo mestre em `omega` via
+       * setCycleAngle(); (3) sincroniza o marcador do gráfico; (4) pinta o motor de trás para a frente —
+       * fontes fria e quente, carcaça, volante, área interna (cor térmica), pistões, virabrequim e
+       * manivelas — em coordenadas lógicas (xCenter, yCenter, scale); (5) agenda o próximo quadro.
+       * Também é chamada diretamente (sem animar) por step, rewind, reload e pela inicialização.
+       * Ângulos → peças: angle (volante) | angle_one_engine (deslocador, usa sen) |
+       * angle_two_engine (pistão de potência, usa cos) | angle_five_engine (manivela do deslocador) |
+       * angle_six_engine (manivela do pistão de potência e ângulo mestre).
+       */
       function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -2233,9 +3200,17 @@
         }
       }
 
+      // =====================================================================================
+      // BLOCO 10 — CONTROLES: REWIND, PLAY/PAUSE, STEP E RELOAD
+      // =====================================================================================
+      // Os botões chamam estas funções por onclick (atributos no HTML). Durante a animação, rewind, step
+      // e os botões de temperatura ficam desabilitados; o estado visual é aplicado por estilo inline.
       //*********************************
       // Botões (Rewind, Play, Pause, Step, Reload)
       //*********************************
+      /**
+       * Retrocede um passo: pausa a animação, toca o efeito sonoro, aplica θ − omega e redesenha.
+       */
       function rewindSimulation() {
         isPlaying = false;
         let audioButton = new Audio("./effect/button-9-88354.mp3");
@@ -2259,9 +3234,15 @@
         draw();
       }
 
+      // Som ambiente da máquina (as chamadas a play()/pause() em playSimulation estão comentadas).
       let audioMachine = new Audio(
         "./effect/spooky-vending-machine-hum-20000.mp3",
       );
+      /**
+       * Alterna entre reproduzir e pausar.
+       * Iniciar: desabilita ▲/▼, rewind e step, troca o ícone play → pause e inicia requestAnimationFrame(draw).
+       * Pausar: reabilita os controles, restaura o ícone e cancela o quadro agendado.
+       */
       function playSimulation() {
         let audioButton = new Audio("./effect/button-9-88354.mp3");
         audioButton.volume = 0.1;
@@ -2336,6 +3317,9 @@
         }
       }
 
+      /**
+       * Avança um passo (θ + omega) e redesenha. Ignorado durante a animação. Reabilita o rewind.
+       */
       function stepSimulation() {
         if (isPlaying) return;
         let audioButton = new Audio("./effect/button-9-88354.mp3");
@@ -2353,25 +3337,44 @@
         draw();
       }
 
+      /**
+       * Restaura o simulador ao estado em que estava logo após a inicialização, sem recarregar a página.
+       * Referência única dos valores: INITIAL_STATE (BLOCO 1B). Sequência:
+       *   1. interrompe a animação (isPlaying = false e cancela o quadro agendado);
+       *   2. restaura as variáveis de estado (temperaturas, geometria do compressor, escala, posição do
+       *      motor, ângulos) e o texto dos campos de temperatura;
+       *   3. reabilita e restaura o aspecto dos controles (▲/▼, rewind, step, ícone de play);
+       *   4. limpa o que o usuário alterou no gráfico (zoom/pan, séries ocultas);
+       *   5. updateChart(): recalcula o modelo (n, ciclo ideal, Schmidt, isotermas, trabalhos), a
+       *      velocidade (omega a partir de ΔT) e substitui os dados de todas as séries;
+       *   6. devolve os eixos ao ajuste inicial e redesenha o Canvas (e o marcador do gráfico).
+       */
       function reloadSimulation() {
+        // 1. Interrompe a animação (cancelAnimationFrame evita um quadro residual após o reset)
         isPlaying = false;
+        cancelAnimationFrame(animation);
         let audioButton = new Audio("./effect/ui-button-click-5-327756.mp3");
         audioButton.volume = 0.1;
         audioButton.play();
         // audioMachine.volume = 0.5;
         // audioMachine.pause();
         // audioMachine.currentTime = 0;
-        yCenter = canvas.height / 2.2;
-        omega = 0.05;
-        scale = 0.75;
-        // let minus = document.getElementById("minus");
-        // let cold = document.getElementById("cold");
-        // minus.disabled = false;
-        // cold.disabled = true;
-        // cold.style.boxShadow = "inset 0px 0px 20px 20px rgba(226, 222, 218, 0.4), inset 0px 0px 20px 20px rgba(226, 222, 218, 0.4)";
-        // cold.style.backgroundColor = "rgb(251, 255, 0)";
-        // minus.style.boxShadow = "inset 2px 2px 5px 2px rgba(226, 222, 218, 0.5), inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5)";
-        // minus.style.backgroundColor = "";
+
+        // 2. Variáveis de estado (valores de INITIAL_STATE)
+        Tc = INITIAL_STATE.Tc;
+        Th = INITIAL_STATE.Th;
+        Dc = INITIAL_STATE.Dc;
+        Sc = INITIAL_STATE.Sc;
+        scale = INITIAL_STATE.scale;
+        hotAmount = INITIAL_STATE.hotAmount;
+        hotSpacing = INITIAL_STATE.hotSpacingBase * scale;
+        xCenter = INITIAL_STATE.xCenter;
+        yCenter = INITIAL_STATE.yCenter;
+        setCycleAngle(INITIAL_STATE.angle);
+        valueTemperatureCold.textContent = INITIAL_STATE.Tc;
+        valueTemperatureHot.textContent = INITIAL_STATE.Th;
+
+        // 3. Controles
         let coldTemperatureUpButton = document.getElementById(
           "coldTemperatureUpButton",
         );
@@ -2388,17 +3391,11 @@
         let buttonPlay = document.getElementById("buttonPlay");
         let buttonRewind = document.getElementById("buttonRewind");
         let buttonStep = document.getElementById("buttonStep");
-        let buttonReload = document.getElementById("buttonReload");
 
         coldTemperatureUpButton.disabled = false;
         coldTemperatureDownButton.disabled = false;
         hotTemperatureUpButton.disabled = false;
         hotTemperatureDownButton.disabled = false;
-
-        valueTemperatureCold.textContent = 100;
-        Tc = 100;
-        valueTemperatureHot.textContent = 1000;
-        Th = 1000;
 
         buttonRewind.disabled = false;
         buttonRewind.style.boxShadow =
@@ -2408,11 +3405,28 @@
         buttonStep.style.boxShadow =
           "inset 2px 2px 5px 2px rgba(226, 222, 218, 0.5), inset -2px -2px 5px 2px rgba(0, 0, 0, 0.5)";
         buttonStep.style.backgroundColor = "";
-        buttonPlay.querySelector("svg.play").style.display = "block";
+        // Ícone de play visível e de pause oculto, como no HTML inicial (play sem estilo inline)
+        buttonPlay.querySelector("svg.play").style.display = "";
         buttonPlay.querySelector("svg.pause").style.display = "none";
-        setCycleAngle(Math.PI);
+
+        // 4–6. Gráfico: limpa zoom/séries ocultas, recalcula tudo, restaura eixos e redesenha
+        resetChartView();
         updateChart();
+        resetChartAxes();
         draw();
+      }
+
+      // =====================================================================================
+      // BLOCO 11 — INICIALIZAÇÃO
+      // =====================================================================================
+      // Responsividade do gráfico: o Highcharts já reage ao evento resize da janela; o ResizeObserver
+      // cobre também mudanças do contêiner sem resize da janela (troca de retrato/paisagem, barra do
+      // navegador móvel, mudança de layout por breakpoint). reflow() só ajusta o tamanho do gráfico:
+      // não altera dados nem cálculos. O Canvas não precisa de tratamento (ver BLOCO 2).
+      if (typeof ResizeObserver !== "undefined") {
+        new ResizeObserver(() => chart.reflow()).observe(
+          document.getElementById("circleStirling"),
+        );
       }
 
       //*********************************
